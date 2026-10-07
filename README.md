@@ -73,7 +73,8 @@ To confirm both keys work, run `python3 demo/app.py --check`.
 1. Type a question, or open **Saved Prompts** and click one to fill the message box, then press **Send**.
 2. Click **View Context** under the answer to see the company information the AI used.
 3. Check the answer against the facts. The [presenter guide](DEMO_GUIDE.md) has the answer key.
-4. In **Settings**, switch between **Baseline** and **Improved** to see how the prompt changes the answer.
+4. In the **Assistant prompt** panel on the right, switch between **Baseline** (a short prompt with no rules) and **Improved** (a prompt with clear rules) to see how instructions change the answer.
+5. Click **New conversation** to start fresh. Your chat stays if you visit the Evaluation page and come back.
 
 Try: *"Is the Summit Rain Jacket available in Navy, size M?"*, *"Can I use TRAIL10 on this jacket?"*, or *"Do you price match competitors?"*
 

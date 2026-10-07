@@ -35,6 +35,8 @@ except ModuleNotFoundError as exc:
     sys.exit(1)
 
 logger = logging.getLogger(__name__)
+# Pages always revalidate, so a browser never shows an outdated page after an update.
+NO_CACHE = {"Cache-Control": "no-cache"}
 
 
 class HistoryMessage(BaseModel):
@@ -187,11 +189,11 @@ def create_app(*, replay: bool = False) -> FastAPI:
 
     @application.get("/")
     async def chat_page():
-        return FileResponse(static / "index.html")
+        return FileResponse(static / "index.html", headers=NO_CACHE)
 
     @application.get("/evaluation")
     async def evaluation_page():
-        return FileResponse(static / "evaluation.html")
+        return FileResponse(static / "evaluation.html", headers=NO_CACHE)
 
     @application.get("/api/config")
     async def app_config():

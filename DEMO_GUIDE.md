@@ -83,7 +83,7 @@ these steps do not establish a material composition or a warranty.
 
 ## Questions attendees can try
 
-Start independent topics with a fresh conversation. Keep the conversation when testing a follow-up.
+Start independent topics with **New conversation**. Keep the conversation when testing a follow-up.
 
 | Ask | Expected answer or behavior |
 |---|---|
@@ -162,7 +162,7 @@ After the manual review, open **Evaluation** to show how the same expectations b
 
 > The browser sends a question and recent messages to one Python server, which selects relevant Markdown information, asks OpenAI for one answer, and returns the answer with its evidence.
 
-There is no automated reviewer in live chat. The current model is `gpt-4o-mini`, temperature **0.7**, with up to six prior messages. On the Evaluation page, answers are graded by a different model, Claude Haiku 4.5 (temperature 0.7). Reloading or switching prompts clears the conversation. Keep the prompts, knowledge, and settings unchanged during the talk; repeated answers can still vary.
+There is no automated reviewer in live chat. The current model is `gpt-4o-mini`, temperature **0.7**, with up to six prior messages. On the Evaluation page, answers are graded by a different model, Claude Haiku 4.5 (temperature 0.7). **New conversation** or switching prompts clears the conversation; visiting the Evaluation page does not. Keep the prompts, knowledge, and settings unchanged during the talk; repeated answers can still vary.
 
 Replay and compatible fallback answers are visibly labeled. Run `python3 demo/app.py --rehearse` before presenting so saved answers match the current temperature-0.7 configuration. See [setup and saved-answer behavior](HOW_IT_WORKS.md#prepare-and-use-saved-answers). Automated scoring is on the Evaluation page; see [Evaluation page](HOW_IT_WORKS.md#evaluation-page).
 
@@ -170,8 +170,8 @@ Replay and compatible fallback answers are visibly labeled. Run `python3 demo/ap
 
 1. Run `python3 demo/app.py --check` to confirm both API keys work.
 2. Run `python3 demo/app.py --rehearse` after any change to prompts, knowledge, test cases, or model settings, so backup answers and grades match.
-3. Open **Settings** and confirm the assistant prompt you want to start with; the browser remembers the last choice.
-4. Refresh the page before an important saved question. Backup answers only match a fresh conversation.
+3. Check the **Assistant prompt** panel on the chat page shows the prompt you want to start with; the browser remembers the last choice.
+4. Click **New conversation** before an important saved question. Backup answers only match a fresh conversation.
 5. If the internet fails completely, press **Ctrl+C** and restart with `python3 demo/app.py --replay`.
 6. Expect answers to vary at temperature 0.7. Review whatever comes back rather than promising an outcome.
 

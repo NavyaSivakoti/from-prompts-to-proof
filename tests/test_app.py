@@ -444,3 +444,9 @@ def test_duplicate_stop_allows_cleanup_and_guards_rapid_restart(
             assert fresh["stopped"] is False and fresh["completed_count"] == 3
 
     asyncio.run(scenario())
+
+
+def test_pages_ask_browsers_to_revalidate():
+    with TestClient(create_app()) as client:
+        for path in ("/", "/evaluation"):
+            assert client.get(path).headers["cache-control"] == "no-cache"

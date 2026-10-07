@@ -1,7 +1,10 @@
 "use strict";
 
 // Keep only three successful exchanges for follow-ups. Evaluation remains independent.
-const state = {config: null, cases: [], evaluations: {baseline: null, improved: null}, knowledge: null, busy: false, history: [], promptVersion: null, evaluationRun: null};
+const state = {config: null, cases: [], evaluations: {baseline: null, improved: null}, knowledge: null, busy: false, history: [], turns: [], promptVersion: null, evaluationRun: null};
+// The chat survives a visit to Evaluation (same tab) until New conversation or a prompt switch.
+const CHAT_STORAGE_KEY = "northwind.chat.v1";
+const MAX_SAVED_TURNS = 40;
 const $ = (id) => document.getElementById(id);
 const promptName = (version) => version === "improved" ? "Improved" : "Baseline";
 const noContext = "No matching company information was found for this question.";
@@ -40,19 +43,45 @@ function setPrompt(version, resetConversation = true, persistSelection = true) {
   state.promptVersion = version;
   if ($("prompt-version")) $("prompt-version").value = version;
   if ($("evaluation-prompt")) $("evaluation-prompt").value = version;
+  document.querySelectorAll(".prompt-options [data-prompt]").forEach((option) => option.classList.toggle("active", option.dataset.prompt === version));
   if (persistSelection) {
     try { localStorage.setItem(promptPreferenceKey(), version); } catch { /* Storage may be unavailable. */ }
   }
-  if (changed && resetConversation) {
-    state.history = [];
-    if ($("conversation") && $("conversation").children.length > 1) {
-      const welcome = element("article", "message assistant-message welcome-message");
-      welcome.append(element("p", "message-author", "Northwind support"), element("div", "message-bubble", "Hi! I'm the Northwind Outfitters support assistant. I explain the fixed demo catalogue and store policies to help with product questions, shopping, shipping, and returns."));
-      $("conversation").replaceChildren(welcome);
-      $("question").value = "";
-      if ($("context-dialog").open) $("context-dialog").close();
-    }
+  if (changed && resetConversation) startNewConversation();
+}
+
+function welcomeMessage() {
+  const welcome = element("article", "message assistant-message welcome-message");
+  welcome.append(element("p", "message-author", "Northwind support"), element("div", "message-bubble", "Hi! I'm the Northwind Outfitters support assistant. I explain the fixed demo catalogue and store policies to help with product questions, shopping, shipping, and returns."));
+  return welcome;
+}
+
+function saveChat() {
+  try {
+    sessionStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify({promptVersion: state.promptVersion, history: state.history, turns: state.turns.slice(-MAX_SAVED_TURNS)}));
+  } catch { /* Storage may be full or unavailable; the chat still works. */ }
+}
+
+function restoreChat() {
+  let saved = null;
+  try { saved = JSON.parse(sessionStorage.getItem(CHAT_STORAGE_KEY) || "null"); } catch { saved = null; }
+  if (!saved || saved.promptVersion !== state.promptVersion || !Array.isArray(saved.turns)) return;
+  state.history = Array.isArray(saved.history) ? saved.history : [];
+  state.turns = saved.turns;
+  for (const turn of state.turns) {
+    appendUser(turn.question);
+    appendAssistant(turn.data);
   }
+}
+
+function startNewConversation() {
+  state.history = [];
+  state.turns = [];
+  try { sessionStorage.removeItem(CHAT_STORAGE_KEY); } catch { /* Storage may be unavailable. */ }
+  if (!$("conversation")) return;
+  $("conversation").replaceChildren(welcomeMessage());
+  $("question").value = "";
+  if ($("context-dialog").open) $("context-dialog").close();
 }
 
 function dateLabel(timestamp) {
@@ -126,6 +155,7 @@ async function sendChat(event) {
   $("send-button").disabled = true;
   $("question").disabled = true;
   $("prompt-version").disabled = true;
+  $("new-conversation").disabled = true;
   appendUser(question);
   $("question").value = "";
   const loading = element("article", "message assistant-message loading-message");
@@ -140,6 +170,8 @@ async function sendChat(event) {
     appendAssistant(data);
     const historyLimit = state.config ? state.config.max_history_messages || 6 : 6;
     state.history = [...state.history, {role: "user", content: question}, {role: "assistant", content: data.response}].slice(-historyLimit);
+    state.turns.push({question, data});
+    saveChat();
   } catch (error) {
     loading.remove();
     const article = element("article", "message assistant-message chat-error");
@@ -153,6 +185,7 @@ async function sendChat(event) {
     $("send-button").disabled = false;
     $("question").disabled = false;
     $("prompt-version").disabled = false;
+    $("new-conversation").disabled = false;
     $("question").focus();
   }
 }
@@ -452,6 +485,10 @@ async function initialize() {
       if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) $("context-dialog").close();
     });
     $("knowledge-details").addEventListener("toggle", loadKnowledge);
+    $("new-conversation").addEventListener("click", () => { if (!state.busy) startNewConversation(); });
+    // Saved prompts are an open sidebar on wide screens but start collapsed on phones.
+    if (window.matchMedia("(max-width: 850px)").matches) $("saved-prompts").open = false;
+    restoreChat();
   }
   try {
     state.config = await api("/api/config");

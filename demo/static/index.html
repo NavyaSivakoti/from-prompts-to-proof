@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Northwind Outfitters is a fictional outdoor store. This chat offers shopping guidance and support using a fixed demo catalogue and written policies.">
   <title>Northwind Outfitters · Customer support</title>
-  <link rel="stylesheet" href="/static/styles.css?v=20261006-claude-grader">
-  <script src="/static/app.js?v=20261006-claude-grader" defer></script>
+  <link rel="stylesheet" href="/static/styles.css?v=20261007-layout2">
+  <script src="/static/app.js?v=20261007-layout2" defer></script>
 </head>
 <body data-page="chat">
   <header class="site-header">
@@ -16,23 +16,14 @@
     </a>
     <div class="header-actions">
       <nav class="page-nav" aria-label="Main navigation"><a class="active" href="/" aria-current="page">Chat</a><a href="/evaluation">Evaluation</a></nav>
-      <details class="settings">
-        <summary>Settings</summary>
-        <div class="settings-panel">
-          <label for="prompt-version">Assistant prompt</label>
-          <select id="prompt-version"><option value="baseline">Baseline</option><option value="improved" selected>Improved</option></select>
-          <p id="model-settings" class="small muted">Loading model settings…</p>
-          <p class="small muted">Changing the assistant prompt starts a new conversation.</p>
-        </div>
-      </details>
     </div>
   </header>
   <div class="mode-banner" id="mode-banner" role="status" hidden>REPLAY MODE — Saved responses</div>
   <div class="configuration-message" id="configuration-message" role="status" hidden></div>
   <main class="chat-page">
-    <section class="chat-introduction"><div class="chat-introduction-heading"><p class="eyebrow">A little help for your next adventure</p><h1>How can we help?</h1></div><p>Northwind Outfitters is a fictional outdoor store with five products: a rain jacket, fleece, backpack, hiking boots, and tent. It serves the contiguous 48 United States, with free standard shipping at a merchandise subtotal of $75 or more after discounts and before tax.</p></section>
+    <section class="chat-introduction"><p class="eyebrow">A little help for your next adventure</p><h1>How can we help?</h1></section>
     <div class="chat-layout">
-      <details class="saved-prompts" id="saved-prompts">
+      <details class="saved-prompts" id="saved-prompts" open>
         <summary><span aria-hidden="true">＋</span> Saved Prompts</summary>
         <div class="saved-prompts-content">
           <p class="small muted">Choose a question to place it in the message box.</p>
@@ -62,6 +53,28 @@
           <p class="composer-note" id="composer-note">Enter to send · Shift + Enter for a new line</p>
         </form>
       </section>
+      <aside class="demo-panel" aria-label="About this demo">
+        <section class="panel-card">
+          <button class="button quiet new-conversation" id="new-conversation" type="button">New conversation</button>
+          <p class="small muted">Your chat stays when you visit Evaluation and come back. Start fresh before an important saved question so a backup answer can match.</p>
+          <p id="model-settings" class="small muted">Loading model settings…</p>
+        </section>
+        <section class="panel-card">
+          <h2><label for="prompt-version">Assistant prompt</label></h2>
+          <p>The system prompt is the hidden instruction the AI follows. Switch it to compare answers to the same question.</p>
+          <select id="prompt-version"><option value="baseline">Baseline</option><option value="improved" selected>Improved</option></select>
+          <dl class="prompt-options">
+            <div data-prompt="baseline"><dt>Baseline</dt><dd>A short "be friendly and helpful" prompt with no rules. It tends to guess, invent policies, or promise actions it can't take.</dd></div>
+            <div data-prompt="improved"><dt>Improved</dt><dd>Adds rules: use only company facts, do the shipping maths, ask when unclear, stay on topic, never take actions or ask for card details.</dd></div>
+          </dl>
+          <p class="small muted">Switching starts a new conversation.</p>
+        </section>
+        <section class="panel-card">
+          <h2>About Northwind</h2>
+          <p>A fictional outdoor store with five products: a rain jacket, fleece, backpack, hiking boots, and tent.</p>
+          <p>Ships to the contiguous 48 US states. Standard shipping is free at $75 or more, after discounts and before tax.</p>
+        </section>
+      </aside>
     </div>
     <p class="page-footnote">I explain products and store policies; I can’t place orders, track shipments, or issue refunds.</p>
   </main>

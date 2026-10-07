@@ -28,7 +28,7 @@ The assistant acts as Northwind's online customer-support agent. A customer type
 2. It sends one request to `gpt-4o-mini` containing the chosen system prompt, those documents, up to six earlier messages, and the question.
 3. It shows the answer with a **View Context** button revealing exactly which documents the model received, so you can tell a wrong answer apart from missing information.
 
-**Two system prompts** show how instructions change behavior, selectable in **Settings**:
+**Two system prompts** show how instructions change behavior, selectable in the **Assistant prompt** panel on the right of the chat page:
 
 - **Baseline**: a short, friendly "be helpful" prompt with no rules. It tends to guess, invent policies, or promise actions it can't perform.
 - **Improved** (default): adds rules for using only supplied facts, doing shipping and discount arithmetic correctly, asking for clarification, staying on topic, refusing financial advice, never asking for card details, and not revealing its instructions.
@@ -43,11 +43,11 @@ Answers are not guaranteed to be correct. That is the point of the talk: the app
 2. Open **Saved Prompts** for the original five questions or five additional **Tricky questions**. A button fills the message box; it does not send the question.
 3. Open **View Context** beneath an answer to inspect the exact company information supplied. Expand **Conversation History** or **Full Knowledge Base** when useful.
 4. Compare the complete answer with the [answer key](DEMO_GUIDE.md). Check its facts, missing information, relevance, and claimed actions.
-5. Ask a follow-up or change one condition. In Settings, switch between **Baseline** and **Improved** to try the same question with another prompt. Switching prompts or refreshing starts a fresh conversation.
+5. Ask a follow-up or change one condition. In the **Assistant prompt** panel, switch between **Baseline** and **Improved** to try the same question with another prompt. Switching prompts or clicking **New conversation** starts a fresh conversation.
 
 Try **“Do you have the Summit Rain Jacket in Navy, size M?”**, **“How do I clean the Daypack20 Backpack?”**, **“Can I use TRAIL10 on this jacket?”**, or **“Can I return an unused jacket?”**
 
-Chat starts with Improved on first use; after that the browser remembers the last prompt you picked, so check **Settings** before presenting. Chat includes up to six prior user/assistant messages. History stays in the current browser page. The model is the standard [`gpt-4o-mini` alias](https://developers.openai.com/api/docs/models/gpt-4o-mini), with **temperature 0.7** and a 600-token answer limit, configured in [demo/config.py](demo/config.py). Repeated requests can give different answers.
+Chat starts with Improved on first use; after that the browser remembers the last prompt you picked, so check the **Assistant prompt** panel before presenting. Chat includes up to six prior user/assistant messages. The conversation is kept in the browser tab, so it survives a visit to the Evaluation page or a page reload, and is cleared by **New conversation**, switching prompts, or closing the tab. The model is the standard [`gpt-4o-mini` alias](https://developers.openai.com/api/docs/models/gpt-4o-mini), with **temperature 0.7** and a 600-token answer limit, configured in [demo/config.py](demo/config.py). Repeated requests can give different answers.
 
 Keep both prompts, the company information, and model settings fixed during the presentation. In chat, review each answer directly; automated scores live on the Evaluation page.
 
@@ -132,7 +132,7 @@ python3 demo/app.py --replay
 
 Replay is labeled **REPLAY MODE — Saved responses** and makes no live calls. It treats questions independently; an unsaved question shows a clear error. Matching requires the same prompt, model, temperature, selected information, and history.
 
-During live use, a failed answer request can use a compatible saved answer labeled **Fallback response — saved during rehearsal**. Conversation history must match too, so refresh the page before an important saved question to start a fresh conversation. Saved evidence is never presented as a fresh live response. Without a matching record, the request error remains visible.
+During live use, a failed answer request can use a compatible saved answer labeled **Fallback response — saved during rehearsal**. Conversation history must match too, so click **New conversation** before an important saved question. Saved evidence is never presented as a fresh live response. Without a matching record, the request error remains visible.
 
 Only the 31 Evaluation questions are recorded. A question you make up on stage, or a follow-up with different history, has no saved answer. In replay mode the Evaluation page shows the recorded answers with their recorded grades and calls nothing.
 
