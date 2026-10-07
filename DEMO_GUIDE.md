@@ -2,7 +2,7 @@
 
 The talk has two parts: **Chat → Saved Prompts → View Context → manual review**, then the **Evaluation** page, which turns the same expectations into 31 repeatable automated tests. See [Before you present](#before-you-present) for the on-stage checklist.
 
-Northwind Outfitters is a fictional camping and hiking store serving the contiguous 48 United States. It sells five outdoor products, with free standard shipping on a merchandise subtotal of $75 or more after discounts and before tax. Its eight [company documents](README.md#company-information) define the facts. The [customer-flow reference](CUSTOMER_FLOWS.md) explains the merchant inspiration.
+Northwind Outfitters is a fictional camping and hiking store serving the contiguous 48 United States. It sells five outdoor products, with free standard shipping on a merchandise subtotal of $75 or more after discounts and before tax. Its eight [company documents](HOW_IT_WORKS.md#company-information) define the facts. The [customer-flow reference](CUSTOMER_FLOWS.md) explains the merchant inspiration.
 
 The assistant explains products and policies. It cannot place an order, check live stock, process a refund, issue a label, or contact a person. There is no working checkout, and `support@northwind.example` is fictional.
 
@@ -164,7 +164,7 @@ After the manual review, open **Evaluation** to show how the same expectations b
 
 There is no automated reviewer in live chat. The current model is `gpt-4o-mini`, temperature **0.7**, with up to six prior messages. On the Evaluation page, answers are graded by a different model, Claude Haiku 4.5 (temperature 0.7). Reloading or switching prompts clears the conversation. Keep the prompts, knowledge, and settings unchanged during the talk; repeated answers can still vary.
 
-Replay and compatible fallback answers are visibly labeled. Run `python3 demo/app.py --rehearse` before presenting so saved answers match the current temperature-0.7 configuration. See [setup and saved-answer behavior](README.md#prepare-and-use-saved-answers). Automated scoring is on the Evaluation page; see [Evaluation page](README.md#evaluation-page).
+Replay and compatible fallback answers are visibly labeled. Run `python3 demo/app.py --rehearse` before presenting so saved answers match the current temperature-0.7 configuration. See [setup and saved-answer behavior](HOW_IT_WORKS.md#prepare-and-use-saved-answers). Automated scoring is on the Evaluation page; see [Evaluation page](HOW_IT_WORKS.md#evaluation-page).
 
 ## Before you present
 
