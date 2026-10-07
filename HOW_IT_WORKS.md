@@ -40,7 +40,7 @@ Answers are not guaranteed to be correct. That is the point of the talk: the app
 ## Chat page in detail
 
 1. Type a customer question and press **Send**.
-2. Open **Saved Prompts** for the original five questions or five additional **Tricky questions**. A button fills the message box; it does not send the question.
+2. Use **Saved Prompts** (open on the left on wide screens, collapsed on phones) for the five quick questions or five **Tricky questions**. A button fills the message box; it does not send the question.
 3. Open **View Context** beneath an answer to inspect the exact company information supplied. Expand **Conversation History** or **Full Knowledge Base** when useful.
 4. Compare the complete answer with the [answer key](DEMO_GUIDE.md). Check its facts, missing information, relevance, and claimed actions.
 5. Ask a follow-up or change one condition. In the **Assistant prompt** panel, switch between **Baseline** and **Improved** to try the same question with another prompt. Switching prompts or clicking **New conversation** starts a fresh conversation.
