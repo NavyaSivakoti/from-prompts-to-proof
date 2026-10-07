@@ -87,7 +87,15 @@ The AI grader can be wrong too, so read its reasons rather than trusting the sco
 
 ## Cost
 
-Each chat question is one small OpenAI request. A full Evaluation run for one prompt makes 31 OpenAI requests plus 29 Claude requests, roughly $0.10 to $0.20 on the Anthropic side.
+Very small. Estimates are based on this app's real request sizes:
+
+| What you do | OpenAI (`gpt-4o-mini`) | Anthropic (Claude Haiku 4.5) | Total |
+|---|---|---|---|
+| One chat question | about $0.0004 | none | under 1 cent |
+| One Evaluation run (31 questions, one prompt) | about $0.01 | about $0.08 | about $0.10 |
+| Recording backup answers for both prompts (`--rehearse`) | about $0.02 | about $0.17 | about $0.20 |
+
+A chat question sends about 2,000 tokens (the system prompt, company documents and question) and gets back about 100. Prices used: [`gpt-4o-mini`](https://developers.openai.com/api/docs/pricing) $0.15 / $0.60 per million input / output tokens, and Claude Haiku 4.5 $1 / $5. Check the providers' pricing pages for current rates.
 
 ## Learn more
 
