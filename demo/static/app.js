@@ -375,7 +375,6 @@ async function runEvaluation() {
   $("run-evaluation").disabled = true;
   $("stop-evaluation").disabled = false;
   $("evaluation-prompt").disabled = true;
-  $("prompt-version").disabled = true;
   $("evaluation-results").setAttribute("aria-busy", "true");
   const status = $("evaluation-status");
   status.className = "evaluation-status running";
@@ -417,7 +416,6 @@ async function runEvaluation() {
       $("run-evaluation").disabled = false;
       $("stop-evaluation").disabled = true;
       $("evaluation-prompt").disabled = false;
-      $("prompt-version").disabled = false;
       $("evaluation-results").setAttribute("aria-busy", "false");
     }
   }
@@ -463,7 +461,7 @@ async function initializeEvaluation() {
 
 async function initialize() {
   setPrompt(storedPrompt(), false, false);
-  $("prompt-version").addEventListener("change", (event) => setPrompt(event.target.value));
+  if ($("prompt-version")) $("prompt-version").addEventListener("change", (event) => setPrompt(event.target.value));
   if ($("evaluation-prompt")) $("evaluation-prompt").addEventListener("change", (event) => setPrompt(event.target.value));
   if (document.body.dataset.page === "chat") {
     $("chat-form").addEventListener("submit", sendChat);
@@ -493,7 +491,7 @@ async function initialize() {
   try {
     state.config = await api("/api/config");
     const config = state.config;
-    $("model-settings").textContent = `${config.model} · Temperature ${config.temperature}`;
+    if ($("model-settings")) $("model-settings").textContent = `${config.model} · Temperature ${config.temperature}`;
     if ($("evaluation-model")) $("evaluation-model").textContent = `Answers: ${config.model} · Temperature ${config.temperature} · Grader: ${config.grader_model} · Temperature ${config.grader_temperature}`;
     $("mode-banner").hidden = config.mode !== "replay";
     if ($("composer-note") && config.mode === "replay") $("composer-note").textContent += " · Replay uses independent saved questions.";
@@ -505,7 +503,7 @@ async function initialize() {
       $("configuration-message").hidden = false;
     }
   } catch (error) {
-    $("model-settings").textContent = "Model settings unavailable.";
+    if ($("model-settings")) $("model-settings").textContent = "Model settings unavailable.";
     $("configuration-message").textContent = `Unable to load application settings: ${error.message}`;
     $("configuration-message").hidden = false;
   }

@@ -4,20 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Northwind Outfitters · Evaluation</title>
-  <link rel="stylesheet" href="/static/styles.css?v=20261007-layout2">
-  <script src="/static/app.js?v=20261007-layout2" defer></script>
+  <link rel="stylesheet" href="/static/styles.css?v=20261007-layout3">
+  <script src="/static/app.js?v=20261007-layout3" defer></script>
 </head>
 <body data-page="evaluation">
   <header class="site-header">
     <a class="brand" href="/" aria-label="Northwind Outfitters home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 24 15 7l12 17H5Z"/><path d="m11 14 4 5 4-5M17 24l5-8"/></svg></span><span><strong>Northwind Outfitters</strong><span class="brand-subtitle">Customer care · Products &amp; shopping · Shipping · Returns</span></span></a>
-    <div class="header-actions"><nav class="page-nav" aria-label="Main navigation"><a href="/">Chat</a><a class="active" href="/evaluation" aria-current="page">Evaluation</a></nav><details class="settings"><summary>Settings</summary><div class="settings-panel"><label for="prompt-version">Assistant prompt</label><select id="prompt-version"><option value="baseline">Baseline</option><option value="improved">Improved</option></select><p class="small muted">Baseline is a short prompt with no rules. Improved adds rules for evidence, arithmetic, scope, and actions. This choice sets which prompt the suite tests.</p><p id="model-settings" class="small muted">Loading model settings…</p></div></details></div>
+    <div class="header-actions"><nav class="page-nav" aria-label="Main navigation"><a href="/">Chat</a><a class="active" href="/evaluation" aria-current="page">Evaluation</a></nav></div>
   </header>
   <div class="mode-banner" id="mode-banner" role="status" hidden>REPLAY MODE — Saved responses</div>
   <div class="configuration-message" id="configuration-message" role="status" hidden></div>
   <main class="evaluation-page">
     <section class="evaluation-introduction"><p class="eyebrow">From prompts to proof</p><h1>Evaluation</h1><p>Does the response satisfy the expected behavior? Run the same scenarios, inspect the evidence, and compare prompt versions.</p></section>
     <section class="evaluation-controls" aria-label="Run an evaluation">
-      <div><label for="evaluation-prompt">Prompt version</label><select id="evaluation-prompt"><option value="baseline">Baseline</option><option value="improved">Improved</option></select></div>
+      <div><label for="evaluation-prompt">Prompt version</label><select id="evaluation-prompt"><option value="baseline">Baseline</option><option value="improved">Improved</option></select><p class="small muted prompt-hint">Baseline: a short prompt with no rules. Improved: adds rules for evidence, arithmetic, scope, and actions.</p></div>
       <button class="button primary" id="run-evaluation" type="button" disabled>Run Evaluation Suite</button>
       <button class="button quiet stop-evaluation" id="stop-evaluation" type="button" disabled>Stop</button>
       <p class="small muted" id="evaluation-model"></p>

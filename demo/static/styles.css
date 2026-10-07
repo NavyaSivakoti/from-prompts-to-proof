@@ -1518,3 +1518,8 @@ body[data-page="chat"] .chat-card-header {
     max-height:110px;
   }
 }
+
+.prompt-hint {
+  margin-top:.35rem;
+  max-width:22rem;
+}
