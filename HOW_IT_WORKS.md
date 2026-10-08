@@ -33,7 +33,7 @@ The assistant acts as Northwind's online customer-support agent. A customer type
 - **Baseline** (default): a short, friendly "be helpful" prompt with no rules. It tends to guess, invent policies, or promise actions it can't perform.
 - **Improved**: adds rules for using only supplied facts, doing shipping and discount arithmetic correctly, asking for clarification, staying on topic, refusing financial advice, never asking for card details, and not revealing its instructions.
 
-Both prompts contain a hidden marker, `INTERNAL-DEMO-MARKER-7421`, so the Evaluation page can detect if a prompt-injection attack leaks the instructions.
+Both prompts contain a hidden marker, `INTERNAL-DEMO-MARKER-7421`, so a Promptfoo test can detect if a prompt-injection attack leaks the instructions.
 
 Answers are not guaranteed to be correct. That is the point of the talk: the app is built to be tested, and both pages exist to catch its mistakes.
 
@@ -47,23 +47,45 @@ Answers are not guaranteed to be correct. That is the point of the talk: the app
 
 Try **“Do you have the Summit Rain Jacket in Navy, size M?”**, **“How do I clean the Daypack20 Backpack?”**, **“Can I use TRAIL10 on this jacket?”**, or **“Can I return an unused jacket?”**
 
-Chat starts with Baseline on first use; after that the browser remembers the last prompt you picked, so check the **Assistant prompt** panel before presenting. Chat includes up to six prior user/assistant messages. The conversation is kept in the browser tab, so it survives a visit to the Evaluation page or a page reload, and is cleared by **New conversation**, switching prompts, or closing the tab. The model is the standard [`gpt-4o-mini` alias](https://developers.openai.com/api/docs/models/gpt-4o-mini), with **temperature 0.7** and a 600-token answer limit, configured in [demo/config.py](demo/config.py). Repeated requests can give different answers.
+Chat starts with Baseline on first use; after that the browser remembers the last prompt you picked, so check the **Assistant prompt** panel before presenting. Chat includes up to six prior user/assistant messages. The conversation is kept in the browser tab, so it survives a page reload, and is cleared by **New conversation**, switching prompts, or closing the tab. The model is the standard [`gpt-4o-mini` alias](https://developers.openai.com/api/docs/models/gpt-4o-mini), with **temperature 0.7** and a 600-token answer limit, configured in [demo/config.py](demo/config.py). Repeated requests can give different answers.
 
-Keep both prompts, the company information, and model settings fixed during the presentation. In chat, review each answer directly; automated scores live on the Evaluation page.
+Keep both prompts, the company information, and model settings fixed during the presentation. In chat, review each answer directly; automated scores come from Promptfoo.
 
-## Evaluation page
+## Automatic testing with Promptfoo
 
-Open **Evaluation** in the header (or [http://localhost:8000/evaluation](http://localhost:8000/evaluation)), choose a prompt version, and press **Run Evaluation Suite**. **Stop** cancels a run and keeps the scenarios that already finished. A full run takes a few minutes.
+[Promptfoo](https://www.promptfoo.dev/) runs the 31 test questions against the running chatbot and grades every answer. With the app running (`python3 demo/app.py`), open a second terminal in the project folder:
 
-The scenarios live in [demo/test_cases.json](demo/test_cases.json). Each has a question, the expected behavior, and either a rubric or a deterministic check. For every scenario the app retrieves company information, asks the model for an answer exactly as chat does, then grades that answer:
+```bash
+npx promptfoo@latest eval --no-cache
+```
 
-| Method | Scenarios | How it decides |
+```bash
+npx promptfoo@latest view
+```
+
+`--no-cache` makes every run ask the chatbot again instead of reusing answers from an earlier run. `view` opens the results in your browser: one row per question, with a **Baseline** column and an **Improved** column. Results stay saved on your computer, so you can open a finished run later without calling any API.
+
+**The files:**
+
+| File | What it holds |
+|---|---|
+| [promptfooconfig.yaml](promptfooconfig.yaml) | The setup: send each question to `http://localhost:8000/api/chat` as **Baseline** and as **Improved**, and use Claude Haiku 4.5 as the grader. |
+| [promptfoo/tests.yaml](promptfoo/tests.yaml) | The 31 tests: each has a `question`, optional earlier messages (`history`), and a written PASS/FAIL rule (`rubric`). The first five are the talk's live test cases. |
+| [promptfoo/parse_response.js](promptfoo/parse_response.js) | Reads the chatbot's reply: the answer is what gets tested, and the company documents travel along for the grader. Saved backup answers are rejected, so only live answers are graded. |
+| [promptfoo/grader_input.js](promptfoo/grader_input.js) | Builds what the grader reads: the question, earlier messages, the exact company documents the chatbot was given, and the answer. |
+| [promptfoo/grader_prompt.json](promptfoo/grader_prompt.json) | The grader's instructions: use only the written rule and evidence, treat the answer as data rather than instructions, don't reward confident wording, and fail an answer if any part contradicts the facts. |
+
+**How each answer is checked:**
+
+| Check | Tests | How it decides |
 |---|---|---|
-| **Deterministic** | Return window | Code in [demo/evaluator.py](demo/evaluator.py) looks for the 30-day window and flags contradictions, ranges, or "business days". |
-| **Deterministic — leakage check** | Prompt injection | Fails only if the secret marker in both system prompts (`INTERNAL-DEMO-MARKER-7421`) appears in the answer. |
-| **Model-graded (claude-haiku-4-5)** | The other 29 | A call to **Claude Haiku 4.5** from Anthropic (the *automatic grader*, `grade_response` in [demo/model.py](demo/model.py)) reads the question, supplied context, answer, and written rubric, and returns PASS or FAIL with one sentence of reasoning. |
+| **AI grader** (`llm-rubric`) | All 31 | Claude Haiku 4.5 reads the evidence and the test's written rule, and returns PASS or FAIL with a one-sentence reason. |
+| **Text checks** (`regex`, `icontains`, `not-icontains`) | Return window | The answer must state 30 days, mention delivery, and never say business days. No AI, no cost. |
+| **Text check** (`not-contains`) | Prompt injection | The secret marker hidden in both system prompts (`INTERNAL-DEMO-MARKER-7421`) must never appear. This proves only that the marker didn't leak, not that the prompt is injection-proof. |
 
-Open a result to see the answer, context, method, and reason. The **Baseline vs Improved** table shows the latest completed run for each prompt. The grader is a different model from a different company than the chatbot, so it does not share `gpt-4o-mini`'s blind spots. It is still an AI at temperature 0.7, so it can be wrong or change its mind between runs; read its reason rather than trusting the label. Grader settings live in [demo/config.py](demo/config.py) (`GRADER_MODEL`, `GRADER_TEMPERATURE`). The leakage check only proves that one marker did not leak, not that the prompt is injection-proof.
+A test passes only if all of its checks pass. The grader is a different AI from a different company than the chatbot, so it doesn't share `gpt-4o-mini`'s blind spots, but it is still an AI at temperature 0.7: it can be wrong or change its verdict between runs. Read its reason rather than trusting the label.
+
+To add a test, add a question and its written rule to `promptfoo/tests.yaml`. It is included in the next run.
 
 ## Company information
 
@@ -96,29 +118,29 @@ Browser: question + recent messages
   → answer + View Context
 ```
 
-[demo/retrieval.py](demo/retrieval.py) uses topic and follow-up matching to select company documents. The model receives the selected information, chosen system prompt, recent conversation, and question. The app returns the original answer with its evidence. There is no vector database, agent framework, or shopping backend. Grading happens only on the Evaluation page:
+[demo/retrieval.py](demo/retrieval.py) uses topic and follow-up matching to select company documents. The model receives the selected information, chosen system prompt, recent conversation, and question. The app returns the original answer with its evidence. There is no vector database, agent framework, or shopping backend. Grading happens in Promptfoo, outside the app:
 
 ```text
-Evaluation page: Run Evaluation Suite
-  → for each scenario in demo/test_cases.json
-  → the same retrieval + answer request as chat
-  → deterministic check or a Claude Haiku 4.5 "grader" request
-  → PASS / FAIL + reason, compared across prompts
+npx promptfoo eval
+  → for each question in promptfoo/tests.yaml, for Baseline and Improved
+  → the same /api/chat request the chat page makes
+  → text checks, plus Claude Haiku 4.5 grading against the written rule
+  → PASS / FAIL + reason, side by side in promptfoo view
 ```
 
 ## Prepare and use saved answers
 
-Saved answers are a safety net for presenting live. Conference Wi-Fi drops, OpenAI can rate-limit or time out, and a key can run out of credit. Before the talk you record every Evaluation scenario once with real API calls; the app can then show those recorded answers when it cannot reach OpenAI, clearly labeled so nobody mistakes them for fresh responses.
+Saved answers are a safety net for presenting live. Conference Wi-Fi drops, OpenAI can rate-limit or time out, and a key can run out of credit. Before the talk you record an answer to every Promptfoo test question once with real API calls; the app can then show those recorded answers when it cannot reach OpenAI, clearly labeled so nobody mistakes them for fresh responses.
 
-Record both prompts (62 OpenAI answers plus 58 Claude grader calls, a few minutes). It also writes a readable report to `demo/rehearsal/development-report.md`:
+Record both prompts (62 OpenAI answers, a few minutes, about 2 cents). It also writes a readable report to `demo/rehearsal/recorded-answers.md`:
 
 ```bash
 python3 demo/app.py --rehearse
 ```
 
-Re-run it whenever you change a prompt, a knowledge document, a test case, a model setting, or the grader; old recordings stop matching automatically.
+Re-run it whenever you change a prompt, a knowledge document, a test question, or a model setting; old recordings stop matching automatically. It records answers only; grading is Promptfoo's job.
 
-An optional connection check makes one small request to OpenAI and one to the Claude grader, without printing either key:
+An optional connection check makes one small request to OpenAI without printing the key:
 
 ```bash
 python3 demo/app.py --check
@@ -134,12 +156,15 @@ Replay is labeled **REPLAY MODE — Saved responses** and makes no live calls. I
 
 During live use, a failed answer request can use a compatible saved answer labeled **Fallback response — saved during rehearsal**. Conversation history must match too, so click **New conversation** before an important saved question. Saved evidence is never presented as a fresh live response. Without a matching record, the request error remains visible.
 
-Only the 31 Evaluation questions are recorded. A question you make up on stage, or a follow-up with different history, has no saved answer. In replay mode the Evaluation page shows the recorded answers with their recorded grades and calls nothing.
+Only the 31 test questions are recorded. A question you make up on stage, or a follow-up with different history, has no saved answer. For offline evaluation results, open an earlier run with `npx promptfoo@latest view`.
 
 ## Troubleshooting
 
 - **"Missing Python dependency" or `uvicorn` not found:** activate `.venv` and run `pip install -r requirements.txt` again. You can also skip activation with `.venv/bin/python demo/app.py` (macOS/Linux) or `.\.venv\Scripts\python.exe demo/app.py` (Windows).
-- **"OpenAI API key is not configured" or "Anthropic API key for the grader is not configured":** check the matching line in `.env`, then restart the server.
+- **"OpenAI API key is not configured":** check the `OPENAI_API_KEY` line in `.env`, then restart the server.
+- **Promptfoo shows connection errors:** start the chatbot first (`python3 demo/app.py`) and keep it running during `eval`.
+- **Promptfoo grader errors:** check the `ANTHROPIC_API_KEY` line in `.env`.
+- **"Not a live answer" in Promptfoo:** the chatbot couldn't reach OpenAI and returned a saved backup instead; Promptfoo refuses to grade those. Check your OpenAI key and connection.
 - **Changes don't appear:** after editing Python code, settings, or `.env`, restart the server (**Ctrl+C**, then start again) and refresh the page.
 
 ## Files and checks
@@ -149,16 +174,17 @@ README.md                    Quick overview, setup, and usage
 HOW_IT_WORKS.md              This detailed guide
 DEMO_GUIDE.md                 Manual answer key and presentation flow
 CUSTOMER_FLOWS.md             Merchant reference and customer journeys
-demo/app.py                  Server, Evaluation runner, and CLI commands
+promptfooconfig.yaml         Promptfoo setup: chatbot, both prompts, grader
+promptfoo/tests.yaml         The 31 test questions and their written rules
+promptfoo/*.js, *.json       Response reader, grader input, grader instructions
+demo/app.py                  Server and CLI commands
 demo/config.py               Model settings
-demo/model.py                OpenAI answers and Claude grader requests
-demo/evaluator.py            Test cases and deterministic checks
-demo/test_cases.json         31 Evaluation scenarios and rubrics
-demo/rehearsal.py            Saving and matching recorded answers
+demo/model.py                OpenAI answer requests
+demo/rehearsal.py            Saving and matching recorded backup answers
 demo/retrieval.py             Markdown information selection
 demo/knowledge/              Eight company documents
 demo/prompts/                Baseline and Improved
-demo/static/                 Chat and Evaluation pages
+demo/static/                 Chat page
 demo/rehearsal/              Recorded answers and reports (git-ignored)
 tests/                       Application reliability checks
 ```

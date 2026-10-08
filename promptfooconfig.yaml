@@ -1,0 +1,50 @@
+# Promptfoo evaluation for the Northwind Outfitters chatbot.
+#
+# Start the app first (python3 demo/app.py), then from the repository root:
+#   npx promptfoo@latest eval --no-cache     run all 31 tests against both prompts
+#   npx promptfoo@latest view                open the results in the browser
+#
+# Each test question goes to the running chatbot twice: once with the Baseline
+# prompt and once with the Improved prompt. Claude Haiku 4.5 then grades every
+# answer against the test's written rule, using the same company documents the
+# chatbot was given.
+
+description: Northwind Outfitters support chatbot, Baseline vs Improved
+
+prompts:
+  - '{{question}}'
+
+providers:
+  - id: http://localhost:8000/api/chat
+    label: Baseline
+    config: &chatbot
+      method: POST
+      headers:
+        Content-Type: application/json
+      body: '{"question": {{ prompt | dump }}, "prompt_version": "baseline", "history": {{ history }}}'
+      transformResponse: file://promptfoo/parse_response.js
+  - id: http://localhost:8000/api/chat
+    label: Improved
+    config:
+      <<: *chatbot
+      body: '{"question": {{ prompt | dump }}, "prompt_version": "improved", "history": {{ history }}}'
+
+defaultTest:
+  vars:
+    # Earlier messages for follow-up tests; most tests have none.
+    history: '[]'
+  options:
+    # The grader: a different AI from the chatbot under test.
+    provider:
+      id: anthropic:messages:claude-haiku-4-5
+      config:
+        temperature: 0.7
+    rubricPrompt: file://promptfoo/grader_prompt.json
+  assert:
+    # Every test is graded against its own written rule.
+    - type: llm-rubric
+      value: '{{rubric}}'
+      # Gives the grader the question, earlier messages, and company documents too.
+      transform: file://promptfoo/grader_input.js
+
+tests: file://promptfoo/tests.yaml

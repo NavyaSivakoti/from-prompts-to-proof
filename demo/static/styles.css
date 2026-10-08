@@ -187,29 +187,6 @@ h4 {
   gap:1.75rem;
 }
 
-.page-nav {
-  display:flex;
-  gap:.3rem;
-}
-
-.page-nav a {
-  font-size:.87rem;
-  padding:.65rem .95rem;
-  text-decoration:none;
-  border-radius:7px;
-  color:var(--muted);
-}
-
-.page-nav a.active {
-  background:var(--soft);
-  color:var(--green);
-  font-weight:650;
-}
-
-.page-nav a:hover {
-  background:var(--soft);
-}
-
 .settings {
   position:relative;
   font-size:.8rem;
@@ -891,370 +868,6 @@ body[data-page="chat"] .chat-card-header {
   color:#923c35;
 }
 
-.evaluation-page {
-  max-width:1344px;
-  margin:0 auto;
-  padding:2.4rem 2rem 1.25rem;
-}
-
-.evaluation-introduction {
-  max-width:820px;
-  margin-bottom:1.6rem;
-}
-
-.evaluation-introduction>p:last-child {
-  color:var(--muted);
-  line-height:1.7;
-  font-size:.95rem;
-  margin-top:.8rem;
-}
-
-.evaluation-controls {
-  display:flex;
-  align-items:flex-end;
-  gap:1rem;
-  flex-wrap:wrap;
-  background:white;
-  border:1px solid var(--line);
-  border-radius:12px;
-  padding:1.15rem 1.3rem;
-}
-
-.evaluation-controls label {
-  display:block;
-  font-size:.75rem;
-  color:var(--muted);
-  margin-bottom:.4rem;
-  font-weight:550;
-}
-
-.evaluation-controls select {
-  min-width:165px;
-  font-size:.9rem;
-  min-height:45px;
-}
-
-.evaluation-controls .button {
-  min-height:45px;
-}
-
-.evaluation-controls .stop-evaluation:not(:disabled) {
-  color:var(--amber);
-  border-color:#dfcaa7;
-  background:var(--amber-bg);
-}
-
-.evaluation-controls .stop-evaluation:disabled {
-  cursor:default;
-}
-
-.evaluation-controls>p {
-  align-self:center;
-  margin-left:auto;
-  font-size:.77rem;
-}
-
-.evaluation-status {
-  display:flex;
-  align-items:center;
-  gap:.7rem;
-  line-height:1.6;
-  font-size:.84rem;
-  min-height:2.8rem;
-  padding:.65rem .2rem;
-}
-
-.evaluation-status:empty {
-  min-height:1.2rem;
-  padding:0;
-}
-
-.evaluation-status.error {
-  color:#943e36;
-}
-
-.evaluation-status.complete {
-  color:var(--green);
-}
-
-.evaluation-status.stopping,.evaluation-status.stopped {
-  color:var(--amber);
-}
-
-.results-section,.comparison-section {
-  margin-top:1rem;
-  background:white;
-  border:1px solid var(--line);
-  border-radius:12px;
-  overflow:hidden;
-}
-
-.section-heading {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:1rem;
-  padding:1.3rem 1.4rem;
-  border-bottom:1px solid var(--line);
-}
-
-.section-heading p {
-  margin-top:.3rem;
-}
-
-.empty-results {
-  padding:2.2rem 1.4rem;
-}
-
-.empty-results>p:first-child {
-  font-weight:550;
-  color:var(--ink);
-  margin-bottom:.6rem;
-}
-
-.empty-results>p:last-child {
-  font-size:.9rem;
-  line-height:1.65;
-  max-width:680px;
-}
-
-.table-scroll {
-  overflow-x:auto;
-}
-
-.results-table,.comparison-table {
-  width:100%;
-  border-collapse:collapse;
-  text-align:left;
-}
-
-.results-table {
-  min-width:1120px;
-  table-layout:fixed;
-}
-
-.results-table th,.comparison-table thead th {
-  background:#f7f9f5;
-  color:var(--muted);
-  font-size:.72rem;
-  font-weight:650;
-  letter-spacing:.015em;
-  padding:.9rem 1rem;
-  border-bottom:1px solid var(--line);
-  vertical-align:top;
-}
-
-.results-table th:nth-child(1) {
-  width:19%;
-}
-
-.results-table th:nth-child(2) {
-  width:23%;
-}
-
-.results-table th:nth-child(3) {
-  width:14%;
-}
-
-.results-table th:nth-child(4) {
-  width:8%;
-}
-
-.results-table th:nth-child(5) {
-  width:23%;
-}
-
-.results-table th:nth-child(6) {
-  width:13%;
-}
-
-.results-table td {
-  vertical-align:top;
-  padding:1.15rem 1rem;
-  border-bottom:1px solid #e7ece5;
-  font-size:.8rem;
-  line-height:1.65;
-  overflow-wrap:anywhere;
-}
-
-.results-table tbody tr:last-child td {
-  border-bottom:0;
-}
-
-.scenario-cell strong {
-  color:var(--ink);
-  font-size:.86rem;
-  font-weight:650;
-}
-
-.scenario-question {
-  margin:.5rem 0;
-  color:var(--muted);
-  font-size:.75rem;
-}
-
-.response-preview {
-  white-space:pre-wrap;
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:6;
-  overflow:hidden;
-  font-size:.8rem;
-  line-height:1.65;
-}
-
-.response-cell .source-label {
-  margin-bottom:.5rem;
-}
-
-.method-cell {
-  color:#58655c;
-  font-size:.76rem!important;
-}
-
-.reason-cell {
-  font-size:.79rem!important;
-}
-
-.metadata-cell strong {
-  font-size:.8rem;
-  font-weight:550;
-}
-
-.model-name {
-  font-size:.72rem;
-  overflow-wrap:anywhere;
-  margin-top:.35rem;
-}
-
-.result-badge {
-  display:inline-block;
-  min-width:47px;
-  padding:.22rem .45rem;
-  border-radius:5px;
-  font-size:.69rem;
-  line-height:1.55;
-  font-weight:750;
-  letter-spacing:.02em;
-  text-align:center;
-}
-
-.result-pass {
-  color:#285f45;
-  background:#eaf4e8;
-}
-
-.result-fail {
-  color:#a23e35;
-  background:#fff0ec;
-}
-
-.result-error {
-  color:#885413;
-  background:#fff2da;
-}
-
-.result-detail-row>td {
-  background:#fcfdfb;
-  padding:1.35rem 1.5rem;
-}
-
-.result-detail {
-  max-width:1000px;
-}
-
-.result-detail>.source-label {
-  margin-bottom:1rem;
-}
-
-.result-detail-block {
-  margin-bottom:1.3rem;
-}
-
-.result-detail-block>p {
-  line-height:1.7;
-  white-space:pre-wrap;
-  font-size:.87rem;
-}
-
-.result-detail-block>h4 {
-  font-size:.83rem;
-  color:var(--ink);
-  margin-bottom:.45rem;
-}
-
-.result-detail>.small {
-  font-size:.75rem;
-}
-
-.comparison-section {
-  margin-top:1.65rem;
-}
-
-.comparison-table {
-  min-width:590px;
-}
-
-.comparison-table th,.comparison-table td {
-  border-bottom:1px solid #e7ece5;
-  padding:.9rem 1.4rem;
-  font-size:.83rem;
-  line-height:1.5;
-}
-
-.comparison-table thead th {
-  padding:.85rem 1.4rem;
-}
-
-.comparison-table tbody th {
-  width:50%;
-  font-weight:550;
-}
-
-.comparison-table tbody tr:last-child>* {
-  border-bottom:0;
-}
-
-.comparison-table td {
-  width:25%;
-}
-
-.comparison-source {
-  display:block;
-  color:var(--amber);
-  font-size:.66rem;
-  margin-top:.35rem;
-}
-
-.comparison-section>p {
-  padding:.8rem 1.4rem;
-  border-top:1px solid var(--line);
-  font-size:.72rem;
-  line-height:1.8;
-}
-
-.comparison-section>p:empty {
-  display:none;
-}
-
-.evaluation-notes {
-  margin-top:1.6rem;
-  padding:.2rem .25rem;
-  color:var(--muted);
-  font-size:.79rem;
-  line-height:1.75;
-  max-width:1100px;
-}
-
-.evaluation-notes p+p {
-  margin-top:.6rem;
-}
-
-.evaluation-notes strong {
-  color:#506054;
-  font-weight:600;
-}
-
 @media(max-width:1180px) {
   .chat-layout {
     grid-template-columns:260px minmax(0,1fr);
@@ -1281,9 +894,6 @@ body[data-page="chat"] .chat-card-header {
   }
   .header-actions {
     gap:.8rem;
-  }
-  .page-nav a {
-    padding:.6rem .7rem;
   }
   .brand strong {
     font-size:.9rem;
@@ -1335,17 +945,6 @@ body[data-page="chat"] .chat-card-header {
     flex:none;
     height:clamp(420px,70dvh,720px);
   }
-  .evaluation-page {
-    padding:2rem 1.25rem 1rem;
-  }
-  .evaluation-controls>p {
-    margin-left:0;
-  }
-  .section-heading {
-    align-items:flex-start;
-    flex-direction:column;
-    gap:.6rem;
-  }
 }
 
 @media(max-width:560px) {
@@ -1379,9 +978,6 @@ body[data-page="chat"] .chat-card-header {
     justify-content:space-between;
     gap:1rem;
   }
-  .page-nav a {
-    padding:.4rem .65rem;
-  }
   .settings summary {
     padding:.4rem .2rem;
   }
@@ -1391,9 +987,6 @@ body[data-page="chat"] .chat-card-header {
   .chat-page {
     flex:none;
     padding:.8rem .75rem .5rem;
-  }
-  .evaluation-page {
-    padding:1.5rem 1rem 1rem;
   }
   .chat-introduction {
     display:block;
@@ -1474,29 +1067,6 @@ body[data-page="chat"] .chat-card-header {
     font-size:.81rem;
     padding:.8rem;
   }
-  .evaluation-controls {
-    padding:1rem;
-    gap:.8rem;
-  }
-  .evaluation-controls select {
-    min-width:130px;
-  }
-  .evaluation-controls .button {
-    font-size:.81rem;
-    padding:.8rem .85rem;
-  }
-  .evaluation-controls>p {
-    width:100%;
-  }
-  .section-heading {
-    padding:1.1rem;
-  }
-  .evaluation-introduction>p:last-child {
-    font-size:.88rem;
-  }
-  .comparison-table th,.comparison-table td,.comparison-table thead th {
-    padding:.85rem 1rem;
-  }
 }
 
 @media(max-height:600px) and (min-width:561px) {
@@ -1522,9 +1092,4 @@ body[data-page="chat"] .chat-card-header {
   .saved-prompts[open] {
     max-height:110px;
   }
-}
-
-.prompt-hint {
-  margin-top:.35rem;
-  max-width:30rem;
 }

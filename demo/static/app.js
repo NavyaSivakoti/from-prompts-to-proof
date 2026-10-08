@@ -1,7 +1,7 @@
 "use strict";
 
 // Keep only three successful exchanges for follow-ups. Evaluation remains independent.
-const state = {config: null, cases: [], evaluations: {baseline: null, improved: null}, knowledge: null, busy: false, history: [], turns: [], promptVersion: null, evaluationRun: null};
+const state = {config: null, knowledge: null, busy: false, history: [], turns: [], promptVersion: null};
 // The chat survives a visit to Evaluation (same tab) until New conversation or a prompt switch.
 const CHAT_STORAGE_KEY = "northwind.chat.v1";
 const MAX_SAVED_TURNS = 40;
@@ -26,8 +26,7 @@ async function api(path, options = {}) {
 }
 
 function promptPreferenceKey() {
-  // Separate preferences migrate the old automatic Baseline chat default.
-  return document.body.dataset.page === "chat" ? "northwind.chatPromptVersion.v3" : "northwind.evaluationPromptVersion.v1";
+  return "northwind.chatPromptVersion.v3";
 }
 
 function storedPrompt() {
@@ -42,7 +41,6 @@ function setPrompt(version, resetConversation = true, persistSelection = true) {
   const changed = state.promptVersion !== null && state.promptVersion !== version;
   state.promptVersion = version;
   if ($("prompt-version")) $("prompt-version").value = version;
-  if ($("evaluation-prompt")) $("evaluation-prompt").value = version;
   document.querySelectorAll(".prompt-options [data-prompt]").forEach((option) => option.classList.toggle("active", option.dataset.prompt === version));
   if (persistSelection) {
     try { localStorage.setItem(promptPreferenceKey(), version); } catch { /* Storage may be unavailable. */ }
@@ -91,10 +89,6 @@ function dateLabel(timestamp) {
 }
 
 function sourceLabel(value) {
-  // These labels stay explicit even when saved API data has older metadata.
-  if (value.result === "ERROR" && !value.response) {
-    return value.source === "replay" ? "Replay request — no saved response available" : "Live request — no response available";
-  }
   if (value.source === "fallback") return "Fallback response — saved during rehearsal";
   if (value.source === "replay") return "Saved response — rehearsal";
   return value.source_label || "Live response";
@@ -119,7 +113,7 @@ function appendUser(question) {
 function assistantBubble(response) {
   const bubble = element("div", "message-bubble");
   // A small text-only renderer handles common emphasis without interpreting HTML.
-  // The original response remains unchanged in history and evaluation evidence.
+  // The original response remains unchanged in the conversation history.
   const displayText = String(response).replace(/\\([*`])/g, "$1");
   const parts = displayText.split(/(\*\*[^*\n]+\*\*|`[^`\n]+`)/g);
   for (const part of parts) {
@@ -234,235 +228,9 @@ async function loadKnowledge() {
   }
 }
 
-function resultBadge(result) {
-  const valid = ["PASS", "FAIL", "ERROR"].includes(result) ? result : "ERROR";
-  return element("span", `result-badge result-${valid.toLowerCase()}`, valid);
-}
-
-function detailBlock(label, value, preformatted = false) {
-  const block = element("div", "result-detail-block");
-  block.append(element("h4", "", label), element(preformatted ? "pre" : "p", preformatted ? "evidence-text" : "", value));
-  return block;
-}
-
-function evaluationProgress(suite) {
-  const completed = Number.isInteger(suite.completed_count) ? suite.completed_count : suite.results.length;
-  const total = Number.isInteger(suite.total_count) ? suite.total_count : (state.cases.length || suite.results.length);
-  return {completed, total, partial: Boolean(suite.stopped) || completed < total};
-}
-
-function renderResults(suite) {
-  const progress = evaluationProgress(suite);
-  $("results-heading").textContent = `${promptName(suite.prompt_version)}${progress.partial ? " partial" : ""} automated results`;
-  const progressLabel = progress.partial ? `${suite.stopped ? "Stopped" : "Incomplete"} · ${progress.completed} of ${progress.total} scenarios completed` : "";
-  $("run-metadata").textContent = [progressLabel, suite.model, `Temperature ${suite.temperature}`, dateLabel(suite.timestamp)].filter(Boolean).join(" · ");
-  const source = $("run-source");
-  source.replaceChildren();
-  const savedCount = suite.results.filter((result) => result.response && (result.source === "replay" || result.source === "fallback")).length;
-  const fallbackCount = suite.results.filter((result) => result.source === "fallback").length;
-  if (suite.mode === "replay" || savedCount) {
-    source.hidden = false;
-    source.append(element("span", "source-label saved-label", suite.mode === "replay" ? "REPLAY MODE — Saved responses" : fallbackCount ? `Contains ${fallbackCount} fallback response${fallbackCount === 1 ? "" : "s"} saved during rehearsal` : "Contains saved rehearsal responses"));
-    const sourceNote = suite.stopped && !suite.results.length ? "No saved scenarios finished before the run stopped." : savedCount ? "Saved answers use their recorded rehearsal evaluations." : "No compatible saved answers were available. Replay makes no live API calls.";
-    source.append(element("p", "small muted", sourceNote));
-  } else source.hidden = true;
-  const container = $("evaluation-results");
-  container.className = "table-scroll";
-  container.replaceChildren();
-  if (progress.partial && !suite.results.length) {
-    container.className = "empty-results";
-    container.append(element("p", "", "No scenarios finished before this run ended."), element("p", "muted", "Previous completed runs remain in the comparison."));
-    return;
-  }
-  const table = element("table", "results-table");
-  const thead = element("thead");
-  const headings = element("tr");
-  for (const label of ["Scenario / question", "Model response", "Evaluation method", "Automated result", "Automated reason", "Prompt / model"]) {
-    const th = element("th", "", label);
-    th.scope = "col";
-    headings.append(th);
-  }
-  thead.append(headings);
-  const tbody = element("tbody");
-  suite.results.forEach((result, index) => {
-    const row = element("tr", "result-row");
-    const scenario = element("td", "scenario-cell");
-    scenario.append(element("strong", "", result.name), element("p", "small scenario-question", result.question));
-    const toggle = element("button", "context-button", "View details");
-    toggle.type = "button";
-    toggle.setAttribute("aria-expanded", "false");
-    const detailId = `result-detail-${index}`;
-    toggle.setAttribute("aria-controls", detailId);
-    scenario.append(toggle);
-    const response = element("td", "response-cell");
-    if (result.source === "replay" || result.source === "fallback") response.append(sourceBadge(result));
-    response.append(element("p", "response-preview", result.response || (result.result === "ERROR" ? "No response available." : "")));
-    const method = element("td", "method-cell", result.evaluation_method);
-    const outcome = element("td");
-    outcome.append(resultBadge(result.result));
-    const reason = element("td", "reason-cell", result.reason);
-    const metadata = element("td", "metadata-cell");
-    metadata.append(element("strong", "", promptName(result.prompt_version || suite.prompt_version)), element("p", "small muted model-name", result.model || suite.model));
-    row.append(scenario, response, method, outcome, reason, metadata);
-    const detailRow = element("tr", "result-detail-row");
-    detailRow.id = detailId;
-    detailRow.hidden = true;
-    const detailCell = element("td");
-    detailCell.colSpan = 6;
-    const detail = element("div", "result-detail");
-    detail.append(sourceBadge(result));
-    if (result.error) detail.append(detailBlock("Request or grading error", result.error));
-    detail.append(detailBlock("User question", result.question), detailBlock("Retrieved Context", result.retrieved_context && result.retrieved_context.trim() ? result.retrieved_context : noContext, true), detailBlock("Actual model response", result.response || "No response available.", true), detailBlock("Expected behavior", result.expected_behavior), detailBlock("Automated result", result.result), detailBlock("Evaluation method", result.evaluation_method), detailBlock("Automated evaluation reason", result.reason));
-    if (result.categories && result.categories.length) detail.append(detailBlock("Evaluation dimensions", result.categories.join(", ")));
-    detail.append(element("p", "small muted", `${promptName(result.prompt_version || suite.prompt_version)} · ${result.model || suite.model} · ${dateLabel(result.timestamp || suite.timestamp)}`));
-    detailCell.append(detail);
-    detailRow.append(detailCell);
-    toggle.addEventListener("click", () => {
-      detailRow.hidden = !detailRow.hidden;
-      toggle.setAttribute("aria-expanded", String(!detailRow.hidden));
-      toggle.textContent = detailRow.hidden ? "View details" : "Hide details";
-    });
-    tbody.append(row, detailRow);
-  });
-  table.append(thead, tbody);
-  container.append(table);
-}
-
-function renderComparison() {
-  const body = $("comparison-body");
-  body.replaceChildren();
-  const scenarios = state.cases.length ? state.cases : (state.evaluations.baseline || state.evaluations.improved || {results: []}).results;
-  for (const scenario of scenarios) {
-    const row = element("tr");
-    const heading = element("th", "", scenario.name);
-    heading.scope = "row";
-    row.append(heading);
-    for (const version of ["baseline", "improved"]) {
-      const cell = element("td");
-      const suite = state.evaluations[version];
-      const result = suite && suite.results.find((item) => item.id === scenario.id);
-      if (result) {
-        cell.append(resultBadge(result.result));
-        if (result.source === "replay" || result.source === "fallback") cell.append(element("span", "comparison-source small", sourceLabel(result)));
-      } else cell.append(element("span", "muted", "Not run"));
-      row.append(cell);
-    }
-    body.append(row);
-  }
-  if (!scenarios.length) {
-    const row = element("tr");
-    const cell = element("td", "muted", "Scenario information could not be loaded. Run the suite to populate results.");
-    cell.colSpan = 3;
-    row.append(cell);
-    body.append(row);
-  }
-  $("comparison-metadata").textContent = ["baseline", "improved"].filter((version) => state.evaluations[version]).map((version) => {
-    const suite = state.evaluations[version];
-    return `${promptName(version)}: ${suite.model}, ${dateLabel(suite.timestamp)}${suite.mode === "replay" ? " (replay mode)" : ""}`;
-  }).join(" · ");
-}
-
-async function runEvaluation() {
-  if (state.busy) return;
-  const version = $("evaluation-prompt").value;
-  const runId = typeof globalThis.crypto?.randomUUID === "function" ? globalThis.crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (letter) => {
-    const random = Math.floor(Math.random() * 16);
-    return (letter === "x" ? random : (random & 3) | 8).toString(16);
-  });
-  const run = {id: runId, stopRequested: false, settled: false};
-  state.evaluationRun = run;
-  state.busy = true;
-  $("run-evaluation").disabled = true;
-  $("stop-evaluation").disabled = false;
-  $("evaluation-prompt").disabled = true;
-  $("evaluation-results").setAttribute("aria-busy", "true");
-  const status = $("evaluation-status");
-  status.className = "evaluation-status running";
-  const replay = state.config && state.config.mode === "replay";
-  const scenarios = state.cases.length ? `${state.cases.length} scenarios` : "the scenarios";
-  const progress = replay ? `Loading saved rehearsal results for ${scenarios} with the ${promptName(version)} prompt…` : `Running ${scenarios} with the ${promptName(version)} prompt… A full suite can take a few minutes.`;
-  status.replaceChildren(element("span", "loading-dot"), element("span", "", progress));
-  try {
-    const suite = await api("/api/evaluate", {method: "POST", body: JSON.stringify({prompt_version: version, run_id: run.id})});
-    run.settled = true;
-    if (state.evaluationRun !== run) return;
-    const progress = evaluationProgress(suite);
-    renderResults(suite);
-    if (!progress.partial) {
-      state.evaluations[version] = suite;
-      renderComparison();
-    }
-    const counts = ["PASS", "FAIL", "ERROR"].map((outcome) => `${suite.results.filter((result) => result.result === outcome).length} ${outcome}`).join(" · ");
-    const completionCount = `${progress.completed} of ${progress.total} scenarios completed.`;
-    if (progress.partial) {
-      status.className = "evaluation-status stopped";
-      status.textContent = `${suite.stopped ? "Stopped." : "Evaluation ended early."} ${completionCount} ${suite.results.length ? counts + " " : ""}Previous completed comparison kept.`;
-      return;
-    }
-    status.className = "evaluation-status complete";
-    const savedAnswers = suite.results.filter((result) => result.response && result.source === "replay").length;
-    const completion = suite.mode === "replay" ? (savedAnswers ? `Loaded ${savedAnswers} saved rehearsal answers.` : "No compatible saved answers were available.") : "Evaluation complete.";
-    status.textContent = `${completion} ${completionCount} ${counts}`;
-  } catch (error) {
-    run.settled = true;
-    if (state.evaluationRun !== run) return;
-    status.className = "evaluation-status error";
-    status.textContent = `Evaluation could not be completed: ${error.message}`;
-  } finally {
-    run.settled = true;
-    if (state.evaluationRun === run) {
-      state.evaluationRun = null;
-      state.busy = false;
-      $("run-evaluation").disabled = false;
-      $("stop-evaluation").disabled = true;
-      $("evaluation-prompt").disabled = false;
-      $("evaluation-results").setAttribute("aria-busy", "false");
-    }
-  }
-}
-
-async function stopEvaluation() {
-  const run = state.evaluationRun;
-  if (!run || run.stopRequested || run.settled) return;
-  run.stopRequested = true;
-  $("stop-evaluation").disabled = true;
-  const status = $("evaluation-status");
-  status.className = "evaluation-status stopping";
-  status.replaceChildren(element("span", "loading-dot"), element("span", "", "Stopping… Completed results will stay visible."));
-  try {
-    // Keep the original evaluation request open: it returns completed rows.
-    await api("/api/evaluate/stop", {method: "POST", body: JSON.stringify({run_id: run.id})});
-  } catch (error) {
-    if (state.evaluationRun !== run || run.settled) return;
-    run.stopRequested = false;
-    $("stop-evaluation").disabled = false;
-    status.className = "evaluation-status error";
-    status.textContent = `Could not stop the evaluation: ${error.message} The run is still active; try Stop again.`;
-  }
-}
-
-async function initializeEvaluation() {
-  $("run-evaluation").addEventListener("click", runEvaluation);
-  $("stop-evaluation").addEventListener("click", stopEvaluation);
-  const results = await Promise.allSettled([api("/api/test-cases"), api("/api/evaluations")]);
-  if (results[0].status === "fulfilled") state.cases = results[0].value;
-  if (results[1].status === "fulfilled") state.evaluations = results[1].value;
-  const errors = results.filter((result) => result.status === "rejected");
-  if (errors.length) {
-    $("evaluation-status").className = "evaluation-status error";
-    $("evaluation-status").textContent = errors.map((result) => result.reason.message).join(" ");
-  }
-  renderComparison();
-  const available = [state.evaluations.baseline, state.evaluations.improved].filter(Boolean);
-  available.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  if (available.length) renderResults(available[0]);
-  $("run-evaluation").disabled = false;
-}
-
 async function initialize() {
   setPrompt(storedPrompt(), false, false);
   if ($("prompt-version")) $("prompt-version").addEventListener("change", (event) => setPrompt(event.target.value));
-  if ($("evaluation-prompt")) $("evaluation-prompt").addEventListener("change", (event) => setPrompt(event.target.value));
   if (document.body.dataset.page === "chat") {
     $("chat-form").addEventListener("submit", sendChat);
     $("question").addEventListener("keydown", (event) => {
@@ -490,14 +258,10 @@ async function initialize() {
     state.config = await api("/api/config");
     const config = state.config;
     if ($("model-settings")) $("model-settings").textContent = `${config.model} · Temperature ${config.temperature}`;
-    if ($("evaluation-model")) $("evaluation-model").textContent = `Answers: ${config.model} · Temperature ${config.temperature} · Grader: ${config.grader_model} · Temperature ${config.grader_temperature}`;
     $("mode-banner").hidden = config.mode !== "replay";
     if ($("composer-note") && config.mode === "replay") $("composer-note").textContent += " · Replay uses independent saved questions.";
     if (config.mode !== "replay" && !config.api_key_configured) {
       $("configuration-message").textContent = "OpenAI API key is not configured.";
-      $("configuration-message").hidden = false;
-    } else if (config.mode !== "replay" && document.body.dataset.page === "evaluation" && !config.grader_key_configured) {
-      $("configuration-message").textContent = "Anthropic API key for the grader is not configured. Add ANTHROPIC_API_KEY to .env.";
       $("configuration-message").hidden = false;
     }
   } catch (error) {
@@ -505,7 +269,6 @@ async function initialize() {
     $("configuration-message").textContent = `Unable to load application settings: ${error.message}`;
     $("configuration-message").hidden = false;
   }
-  if (document.body.dataset.page === "evaluation") await initializeEvaluation();
 }
 
 initialize();

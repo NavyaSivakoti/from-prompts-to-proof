@@ -1,19 +1,21 @@
-"""Plain local JSON recordings. Only compatible evidence can be replayed."""
+"""Plain local JSON recordings of real answers. Only compatible answers are reused."""
 
 import hashlib
 import json
 import re
 from datetime import datetime, timezone
-from pathlib import Path
+
+import yaml
 
 from demo import config
-from demo.evaluator import load_test_cases
 
 SOURCE_LABELS = {
     "live": "Live response",
     "replay": "REPLAY MODE — Saved responses",
     "fallback": "Fallback response — saved during rehearsal",
 }
+SCHEMA_VERSION = 2
+TESTS_PATH = config.ROOT_DIR / "promptfoo" / "tests.yaml"
 
 
 def timestamp() -> str:
@@ -34,15 +36,17 @@ def signature(question: str, prompt_version: str, context: str, history: list[di
     return hashlib.sha256(json.dumps(evidence, sort_keys=True).encode()).hexdigest()
 
 
-def case_signature(case: dict) -> str:
-    from demo.model import GRADING_INSTRUCTIONS
-
-    evidence = {"case": case}
-    if case["evaluation_method"] == "model-graded":
-        evidence["grading_instructions"] = GRADING_INSTRUCTIONS
-        evidence["grader_model"] = config.GRADER_MODEL
-        evidence["grader_temperature"] = config.GRADER_TEMPERATURE
-    return hashlib.sha256(json.dumps(evidence, sort_keys=True).encode()).hexdigest()
+def load_questions() -> list[dict]:
+    """The Promptfoo test questions, with any earlier messages, are what we record."""
+    tests = yaml.safe_load(TESTS_PATH.read_text(encoding="utf-8"))
+    questions = []
+    for test in tests:
+        variables = test["vars"]
+        questions.append({
+            "question": variables["question"],
+            "history": json.loads(variables.get("history", "[]"))[-config.MAX_HISTORY_MESSAGES:],
+        })
+    return questions
 
 
 def load_recording() -> dict:
@@ -51,20 +55,12 @@ def load_recording() -> dict:
         return {}
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
-        if data.get("schema_version") != 1 or not isinstance(data.get("suites"), dict):
+        answers = data.get("answers")
+        if data.get("schema_version") != SCHEMA_VERSION or not isinstance(answers, dict):
             return {}
-        suites = data["suites"]
-        expected_ids = {case["id"] for case in load_test_cases()}
-        if set(suites) != set(config.PROMPT_VERSIONS):
-            return {}
-        if any(
-            not isinstance(suite, dict)
-            or not isinstance(suite.get("results"), list)
-            or len(suite["results"]) != len(expected_ids)
-            or any(not isinstance(row, dict) or not isinstance(row.get("id"), str)
-                   for row in suite["results"])
-            or {row.get("id") for row in suite["results"]} != expected_ids
-            for suite in suites.values()
+        if set(answers) != set(config.PROMPT_VERSIONS) or any(
+            not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows)
+            for rows in answers.values()
         ):
             return {}
         return data
@@ -73,30 +69,25 @@ def load_recording() -> dict:
 
 
 def find_saved(question: str, prompt_version: str, context: str, history: list[dict] | None = None) -> dict | None:
-    suite = load_recording().get("suites", {}).get(prompt_version, {})
+    rows = load_recording().get("answers", {}).get(prompt_version, [])
     wanted = signature(question, prompt_version, context, history)
-    for record in suite.get("results", []):
+    for record in rows:
         if record.get("signature") == wanted and isinstance(record.get("response"), str) and record["response"]:
             return record.copy()
     return None
 
 
-def save_recording(suites: dict) -> tuple:
-    """Keep an archive; publish latest only if both suites completed without errors."""
+def save_recording(answers: dict) -> tuple:
+    """Keep an archive; replace latest only if every answer was recorded live."""
     config.REHEARSAL_DIR.mkdir(parents=True, exist_ok=True)
-    recorded_at = timestamp()
-    data = {"schema_version": 1, "timestamp": recorded_at, "suites": suites}
+    data = {"schema_version": SCHEMA_VERSION, "timestamp": timestamp(), "answers": answers}
     archive = config.REHEARSAL_DIR / (
         "rehearsal-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ") + ".json"
     )
     payload = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
     archive.write_text(payload, encoding="utf-8")
-    expected_ids = {case["id"] for case in load_test_cases()}
-    complete = set(suites) == set(config.PROMPT_VERSIONS) and all(
-        len(suite["results"]) == len(expected_ids)
-        and {row.get("id") for row in suite["results"]} == expected_ids
-        and all(row.get("result") in {"PASS", "FAIL"} and row.get("source") == "live" for row in suite["results"])
-        for suite in suites.values()
+    complete = set(answers) == set(config.PROMPT_VERSIONS) and all(
+        rows and all(row.get("source") == "live" for row in rows) for rows in answers.values()
     )
     if complete:
         temporary = config.REHEARSAL_DIR / "latest.tmp"
@@ -105,38 +96,24 @@ def save_recording(suites: dict) -> tuple:
     return archive, complete
 
 
-def write_report(suites: dict) -> Path:
-    """Save every answer verbatim, with the evidence and evaluation beside it."""
+def write_report(answers: dict):
+    """Save every recorded answer verbatim, with the documents the chatbot was given."""
     def verbatim(value: str) -> str:
         longest = max((len(run) for run in re.findall(r"`+", value)), default=0)
         fence = "`" * max(3, longest + 1)
         return f"{fence}text\n{value}\n{fence}\n"
 
-    lines = ["# Development report\n", "These are recorded outcomes, without response edits or predetermined grades.\n"]
-    has_errors = any(row.get("result") == "ERROR" for suite in suites.values() for row in suite["results"])
-    if has_errors:
-        lines.append("**Live verification could not be completed.** Errors below are request or grading errors, not behavior failures. No answer is invented for a failed request.\n")
-    for version, suite in suites.items():
-        lines.extend([
-            f"## {version.title()} Prompt\n",
-            f"Model: `{suite['model']}` · Temperature: `{suite['temperature']}` · "
-            f"Max completion tokens: `{suite.get('max_completion_tokens', config.MAX_COMPLETION_TOKENS)}` · "
-            f"Run time (UTC): `{suite['timestamp']}`\n",
-        ])
-        for index, row in enumerate(suite["results"], 1):
+    lines = ["# Recorded answers\n", "Real answers saved by `--rehearse`, without edits. Grade them with Promptfoo.\n"]
+    for version, rows in answers.items():
+        lines.append(f"## {version.title()} prompt\n")
+        for index, row in enumerate(rows, 1):
             lines.extend([
-                f"### {index}. {row['name']}\n",
-                "Question:\n", verbatim(row["question"]),
-                "Declared conversation setup (user messages, not fabricated model answers):\n",
-                verbatim(json.dumps(row.get("conversation_history", []), ensure_ascii=False, indent=2)),
-                "Expected behavior:\n", row["expected_behavior"] + "\n",
-                "Retrieved context:\n", verbatim(row["retrieved_context"] or "No matching company information was found for this question."),
-                "Actual model response:\n", verbatim(row["response"]) if row["response"] else "No model response was returned.\n",
-                f"Evaluation method: {row['evaluation_method']}\n",
-                f"Outcome: **{row['result']}**\n",
-                "Evaluation reason:\n", verbatim(row["reason"]),
-                f"Response source: {row['source_label']}\n",
+                f"### {index}. {row['question']}\n",
+                "Earlier messages:\n", verbatim(json.dumps(row.get("conversation_history", []), ensure_ascii=False, indent=2)),
+                "Company documents given to the chatbot:\n",
+                verbatim(row.get("retrieved_context") or "No matching company information was found for this question."),
+                "Answer:\n", verbatim(row["response"]) if row.get("response") else f"No answer: {row.get('error', 'unknown error')}\n",
             ])
-    path = config.REHEARSAL_DIR / "development-report.md"
+    path = config.REHEARSAL_DIR / "recorded-answers.md"
     path.write_text("\n".join(lines), encoding="utf-8")
     return path
