@@ -18,7 +18,7 @@ The chatbot uses OpenAI's `gpt-4o-mini`. Promptfoo grades its answers with a dif
 You need:
 
 - **Python 3.11 or newer**, for the chatbot
-- **Node.js 18 or newer**, for Promptfoo
+- **Node.js 22 or newer** (22.22+), for Promptfoo. Check with `node --version`.
 - An **OpenAI API key** for the chatbot
 - An **Anthropic API key** for Promptfoo's grader (the chat works without it)
 

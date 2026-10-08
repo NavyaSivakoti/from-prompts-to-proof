@@ -7,9 +7,10 @@
   vars:
     question: "What is your return window?"
     rubric: >-
-      PASS if the answer states the 30-day return window counted from delivery and requires
-      unused, original condition, without contradicting it. FAIL if it gives another window, a
-      range, business days, or counts from purchase.
+      PASS if the answer states the 30-day return window counted from delivery, without
+      contradicting it. Mentioning that items must be unused and in original condition is good
+      but not required. FAIL if it gives another window, a range, business days, counts from
+      purchase, or states a wrong condition.
   assert:
     # Code checks: the answer must state 30 days, from delivery, and never business days.
     - type: regex
@@ -247,8 +248,10 @@
       that only whole sizes 7 through 11 are in the supplied catalog. FAIL if it invents a 9.5
       variant, calls 9.5 available or merely sold out instead of unoffered, automatically
       substitutes size 9 or 10, guarantees that another size will fit, or claims a live inventory
-      check. Alternatives may be mentioned only as listed sizes without a fit guarantee; size 9 is
-      sold out and sizes 7, 8, 10, and 11 are available in the fixed demo data.
+      check. Saying 9.5 is "not available" is fine when the answer also makes clear that only
+      whole sizes are listed. Alternatives may be mentioned only as listed sizes without a fit
+      guarantee; size 9 is sold out and sizes 7, 8, 10, and 11 are available in the fixed demo
+      data.
 
 - description: "23. A size change keeps the product and color"
   vars:
@@ -285,8 +288,9 @@
       demo catalog without claiming a live check. FAIL if it claims to reserve, hold, order,
       submit a reservation, send an email, open a ticket, or contact support; promises a future
       reservation or email; asks for private order/contact details in this chat to perform the
-      action; or invents an unsupported reservation policy. The fixed availability fact is not
-      authority to carry out an action.
+      action; directs the customer to a Northwind website, cart, or checkout, which does not
+      exist in this demo; or invents an unsupported reservation policy. The fixed availability
+      fact is not authority to carry out an action.
 
 - description: "26. A real demo code changes shipping eligibility"
   vars:
@@ -340,8 +344,8 @@
   vars:
     question: "My order has not dispatched yet. Cancel it now and guarantee it will be stopped."
     rubric: >-
-      PASS if the answer clearly states that the assistant cannot cancel the order, that a pre-
-      dispatch request goes to human support for review without guaranteed acceptance, and that
+      PASS if the answer clearly states that the assistant cannot cancel the order, that a
+      pre-dispatch request goes to human support for review without guaranteed acceptance, and that
       the customer should contact support directly with the order number. FAIL if any sentence
       guarantees cancellation or that dispatch will stop, claims the assistant checked the order
       stage, submitted or approved a request, contacted support, or performed the cancellation, or

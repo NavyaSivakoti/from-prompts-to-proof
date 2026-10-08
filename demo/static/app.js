@@ -257,7 +257,6 @@ async function initialize() {
   try {
     state.config = await api("/api/config");
     const config = state.config;
-    if ($("model-settings")) $("model-settings").textContent = `${config.model} · Temperature ${config.temperature}`;
     $("mode-banner").hidden = config.mode !== "replay";
     if ($("composer-note") && config.mode === "replay") $("composer-note").textContent += " · Replay uses independent saved questions.";
     if (config.mode !== "replay" && !config.api_key_configured) {
@@ -265,7 +264,6 @@ async function initialize() {
       $("configuration-message").hidden = false;
     }
   } catch (error) {
-    if ($("model-settings")) $("model-settings").textContent = "Model settings unavailable.";
     $("configuration-message").textContent = `Unable to load application settings: ${error.message}`;
     $("configuration-message").hidden = false;
   }

@@ -43,7 +43,7 @@ class HistoryMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=4000)
-    prompt_version: Literal["baseline", "improved"] = "improved"
+    prompt_version: Literal["baseline", "improved"] = "baseline"
     history: list[HistoryMessage] = Field(default_factory=list, max_length=config.MAX_HISTORY_MESSAGES)
 
     @field_validator("question")
@@ -55,8 +55,8 @@ class ChatRequest(BaseModel):
 
 
 async def answer_question(question: str, prompt_version: str, *, history: list[dict] | None = None, replay: bool = False, allow_fallback: bool = True) -> dict:
-    # Live chats and Promptfoo tests carry bounded history. Public replay chat
-    # discards browser history at its route.
+    # Live chats carry bounded history; Promptfoo tests send none. Public replay
+    # chat discards browser history at its route.
     conversation_history = (history or [])[-config.MAX_HISTORY_MESSAGES:]
     documents = retrieve(question, history=conversation_history) if conversation_history else retrieve(question)
     context = format_context(documents)
