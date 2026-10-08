@@ -27,11 +27,11 @@ async function api(path, options = {}) {
 
 function promptPreferenceKey() {
   // Separate preferences migrate the old automatic Baseline chat default.
-  return document.body.dataset.page === "chat" ? "northwind.chatPromptVersion.v2" : "northwind.evaluationPromptVersion.v1";
+  return document.body.dataset.page === "chat" ? "northwind.chatPromptVersion.v3" : "northwind.evaluationPromptVersion.v1";
 }
 
 function storedPrompt() {
-  const defaultVersion = document.body.dataset.page === "chat" ? "improved" : "baseline";
+  const defaultVersion = "baseline";
   try {
     const saved = localStorage.getItem(promptPreferenceKey());
     return saved === "baseline" || saved === "improved" ? saved : defaultVersion;
@@ -484,8 +484,6 @@ async function initialize() {
     });
     $("knowledge-details").addEventListener("toggle", loadKnowledge);
     $("new-conversation").addEventListener("click", () => { if (!state.busy) startNewConversation(); });
-    // Saved prompts are an open sidebar on wide screens but start collapsed on phones.
-    if (window.matchMedia("(max-width: 850px)").matches) $("saved-prompts").open = false;
     restoreChat();
   }
   try {

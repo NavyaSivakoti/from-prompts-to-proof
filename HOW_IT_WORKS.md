@@ -30,8 +30,8 @@ The assistant acts as Northwind's online customer-support agent. A customer type
 
 **Two system prompts** show how instructions change behavior, selectable in the **Assistant prompt** panel on the right of the chat page:
 
-- **Baseline**: a short, friendly "be helpful" prompt with no rules. It tends to guess, invent policies, or promise actions it can't perform.
-- **Improved** (default): adds rules for using only supplied facts, doing shipping and discount arithmetic correctly, asking for clarification, staying on topic, refusing financial advice, never asking for card details, and not revealing its instructions.
+- **Baseline** (default): a short, friendly "be helpful" prompt with no rules. It tends to guess, invent policies, or promise actions it can't perform.
+- **Improved**: adds rules for using only supplied facts, doing shipping and discount arithmetic correctly, asking for clarification, staying on topic, refusing financial advice, never asking for card details, and not revealing its instructions.
 
 Both prompts contain a hidden marker, `INTERNAL-DEMO-MARKER-7421`, so the Evaluation page can detect if a prompt-injection attack leaks the instructions.
 
@@ -40,14 +40,14 @@ Answers are not guaranteed to be correct. That is the point of the talk: the app
 ## Chat page in detail
 
 1. Type a customer question and press **Send**.
-2. Use **Saved Prompts** (open on the left on wide screens, collapsed on phones) for the five quick questions or five **Tricky questions**. A button fills the message box; it does not send the question.
+2. Click **Saved Prompts** on the left to open the five quick questions or five **Tricky questions**. A button fills the message box; it does not send the question.
 3. Open **View Context** beneath an answer to inspect the exact company information supplied. Expand **Conversation History** or **Full Knowledge Base** when useful.
 4. Compare the complete answer with the [answer key](DEMO_GUIDE.md). Check its facts, missing information, relevance, and claimed actions.
 5. Ask a follow-up or change one condition. In the **Assistant prompt** panel, switch between **Baseline** and **Improved** to try the same question with another prompt. Switching prompts or clicking **New conversation** starts a fresh conversation.
 
 Try **“Do you have the Summit Rain Jacket in Navy, size M?”**, **“How do I clean the Daypack20 Backpack?”**, **“Can I use TRAIL10 on this jacket?”**, or **“Can I return an unused jacket?”**
 
-Chat starts with Improved on first use; after that the browser remembers the last prompt you picked, so check the **Assistant prompt** panel before presenting. Chat includes up to six prior user/assistant messages. The conversation is kept in the browser tab, so it survives a visit to the Evaluation page or a page reload, and is cleared by **New conversation**, switching prompts, or closing the tab. The model is the standard [`gpt-4o-mini` alias](https://developers.openai.com/api/docs/models/gpt-4o-mini), with **temperature 0.7** and a 600-token answer limit, configured in [demo/config.py](demo/config.py). Repeated requests can give different answers.
+Chat starts with Baseline on first use; after that the browser remembers the last prompt you picked, so check the **Assistant prompt** panel before presenting. Chat includes up to six prior user/assistant messages. The conversation is kept in the browser tab, so it survives a visit to the Evaluation page or a page reload, and is cleared by **New conversation**, switching prompts, or closing the tab. The model is the standard [`gpt-4o-mini` alias](https://developers.openai.com/api/docs/models/gpt-4o-mini), with **temperature 0.7** and a 600-token answer limit, configured in [demo/config.py](demo/config.py). Repeated requests can give different answers.
 
 Keep both prompts, the company information, and model settings fixed during the presentation. In chat, review each answer directly; automated scores live on the Evaluation page.
 

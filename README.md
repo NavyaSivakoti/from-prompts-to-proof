@@ -70,7 +70,7 @@ To confirm both keys work, run `python3 demo/app.py --check`.
 
 **Chat**
 
-1. Type a question, or click one from **Saved Prompts** on the left to fill the message box, then press **Send**.
+1. Type a question, or click **Saved Prompts** on the left and pick one to fill the message box, then press **Send**.
 2. Click **View Context** under the answer to see the company information the AI used.
 3. Check the answer against the facts. The [presenter guide](DEMO_GUIDE.md) has the answer key.
 4. In the **Assistant prompt** panel on the right, switch between **Baseline** (a short prompt with no rules) and **Improved** (a prompt with clear rules) to see how instructions change the answer.

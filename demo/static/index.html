@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Northwind Outfitters is a fictional outdoor store. This chat offers shopping guidance and support using a fixed demo catalogue and written policies.">
   <title>Northwind Outfitters · Customer support</title>
-  <link rel="stylesheet" href="/static/styles.css?v=20261007-layout4">
-  <script src="/static/app.js?v=20261007-layout4" defer></script>
+  <link rel="stylesheet" href="/static/styles.css?v=20261007-layout5">
+  <script src="/static/app.js?v=20261007-layout5" defer></script>
 </head>
 <body data-page="chat">
   <header class="site-header">
@@ -23,7 +23,7 @@
   <main class="chat-page">
     <section class="chat-introduction"><p class="eyebrow">A little help for your next adventure</p><h1>How can we help?</h1></section>
     <div class="chat-layout">
-      <details class="saved-prompts" id="saved-prompts" open>
+      <details class="saved-prompts" id="saved-prompts">
         <summary><span aria-hidden="true">＋</span> Saved Prompts</summary>
         <div class="saved-prompts-content">
           <p class="small muted">Choose a question to place it in the message box.</p>
@@ -59,7 +59,7 @@
         <section class="panel-card">
           <h2><label for="prompt-version">Assistant prompt</label></h2>
           <p>The system prompt is the hidden instruction the AI follows. Switch it to compare answers to the same question.</p>
-          <select id="prompt-version"><option value="baseline">Baseline</option><option value="improved" selected>Improved</option></select>
+          <select id="prompt-version"><option value="baseline" selected>Baseline</option><option value="improved">Improved</option></select>
           <dl class="prompt-options">
             <div data-prompt="baseline"><dt>Baseline</dt><dd>A short "be friendly and helpful" prompt with no rules. It tends to guess, invent policies, or promise actions it can't take.</dd></div>
             <div data-prompt="improved"><dt>Improved</dt><dd>Adds rules: use only company facts, do the shipping maths, ask when unclear, stay on topic, never take actions or ask for card details.</dd></div>

@@ -337,6 +337,11 @@ select {
   min-height:0;
 }
 
+/* Collapsed saved prompts shrink to their button so the chat gets the space. */
+.chat-layout:has(.saved-prompts:not([open])) {
+  grid-template-columns:auto minmax(0,1fr) 300px;
+}
+
 .demo-panel {
   display:flex;
   flex-direction:column;
