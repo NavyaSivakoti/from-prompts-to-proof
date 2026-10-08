@@ -52,10 +52,7 @@ def test_pages_and_missing_key_are_handled(isolated_recordings):
 
 
 def test_record_replay_and_fallback_never_invent_results(isolated_recordings, monkeypatch):
-    seen_histories = []
-
     async def synthetic_answer(question, context, prompt, previous=None):
-        seen_histories.append(previous or [])
         return "You can return unused items within 30 days of delivery."
 
     monkeypatch.setattr(model, "generate_response", synthetic_answer)
@@ -64,8 +61,6 @@ def test_record_replay_and_fallback_never_invent_results(isolated_recordings, mo
     assert complete
     report = rehearsal.write_report(answers).read_text(encoding="utf-8")
     assert report.count("### ") == 2 * len(rehearsal.load_questions())
-    setup = next(item["history"] for item in rehearsal.load_questions() if item["history"])
-    assert setup in seen_histories
 
     async def forbidden_call(*args, **kwargs):
         pytest.fail("Replay attempted a live model call")
@@ -216,7 +211,7 @@ def test_promptfoo_tests_cover_the_saved_prompts_and_have_rules():
     for test in tests:
         assert test["vars"]["question"].strip()
         assert test["vars"]["rubric"].strip()
-        json.loads(test["vars"].get("history", "[]"))
+        assert "history" not in test["vars"]  # every test is one self-contained question
     page = (ROOT / "demo" / "static" / "index.html").read_text(encoding="utf-8")
     saved = re.findall(r'class="saved-prompt">(.*?)</button>', page)
     questions = {test["vars"]["question"] for test in tests}

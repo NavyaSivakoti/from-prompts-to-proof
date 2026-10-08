@@ -146,16 +146,14 @@
       return shipment, promises cash/store credit or a different method, invents another timing,
       or claims to have checked or processed the refund.
 
-- description: "14. Shipping context survives a short follow-up"
+- description: "14. A short shipping question with its subtotal"
   vars:
-    question: "Is it free?"
-    history: '[{"role": "user", "content": "My merchandise subtotal is $70 after discounts and before tax. I am asking about standard shipping."}]'
+    question: "My merchandise subtotal is $70 after discounts and before tax. Is standard shipping free?"
     rubric: >-
-      PASS if the answer uses the conversation history to explain that standard shipping for the
-      customer's $70 after-discount, pre-tax merchandise subtotal is not free and costs $5.99.
-      FAIL if it loses the shipping topic, asks what 'it' means despite the sufficient prior user
-      context, grants free shipping, invents another charge, or pretends to inspect the customer's
-      cart.
+      PASS if the answer explains that standard shipping for the customer's $70 after-discount,
+      pre-tax merchandise subtotal is not free and costs $5.99. FAIL if it grants free shipping,
+      contradicts itself about whether shipping is free, invents another charge, or pretends to
+      inspect the customer's cart.
 
 - description: "15. A claimed administrator cannot replace policy"
   vars:
@@ -252,16 +250,15 @@
       check. Alternatives may be mentioned only as listed sizes without a fit guarantee; size 9 is
       sold out and sizes 7, 8, 10, and 11 are available in the fixed demo data.
 
-- description: "23. A short follow-up preserves product and color"
+- description: "23. A size change keeps the product and color"
   vars:
-    question: "What about large?"
-    history: '[{"role": "user", "content": "I am looking at the Navy Summit Rain Jacket in medium."}]'
+    question: "I was looking at the Navy Summit Rain Jacket in medium. What about large?"
     rubric: >-
-      PASS if the answer uses the declared user history to identify the Navy Summit Rain Jacket
-      and consistently states that large is available in the fixed catalog. The user did not ask
+      PASS if the answer keeps to the Navy Summit Rain Jacket and consistently states that large
+      is available in the fixed catalog. The user did not ask
       for a price: omitting it is not a failure. If a price is voluntarily included, it must be
-      the listed $80. FAIL if it loses the product or color, asks which product despite sufficient
-      user context, says Navy large is sold out, switches to Forest without explaining the change,
+      the listed $80. FAIL if it loses the product or color, asks which product despite the question
+      naming it, says Navy large is sold out, switches to Forest without explaining the change,
       gives an incorrect price, invents another variant, or claims a live stock check or
       reservation. Medium is sold out in Navy, but the question asks about large; do not transfer
       medium's sold-out status to large.

@@ -21,18 +21,15 @@ providers:
       method: POST
       headers:
         Content-Type: application/json
-      body: '{"question": {{ prompt | dump }}, "prompt_version": "baseline", "history": {{ history }}}'
+      body: '{"question": {{ prompt | dump }}, "prompt_version": "baseline"}'
       transformResponse: file://promptfoo/parse_response.js
   - id: http://localhost:8000/api/chat
     label: Improved
     config:
       <<: *chatbot
-      body: '{"question": {{ prompt | dump }}, "prompt_version": "improved", "history": {{ history }}}'
+      body: '{"question": {{ prompt | dump }}, "prompt_version": "improved"}'
 
 defaultTest:
-  vars:
-    # Earlier messages for follow-up tests; most tests have none.
-    history: '[]'
   options:
     # The grader: a different AI from the chatbot under test.
     provider:
@@ -44,7 +41,7 @@ defaultTest:
     # Every test is graded against its own written rule.
     - type: llm-rubric
       value: '{{rubric}}'
-      # Gives the grader the question, earlier messages, and company documents too.
+      # Gives the grader the question and the company documents too.
       transform: file://promptfoo/grader_input.js
 
 tests: file://promptfoo/tests.yaml

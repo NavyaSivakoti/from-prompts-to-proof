@@ -37,16 +37,9 @@ def signature(question: str, prompt_version: str, context: str, history: list[di
 
 
 def load_questions() -> list[dict]:
-    """The Promptfoo test questions, with any earlier messages, are what we record."""
+    """The Promptfoo test questions are what we record. Each test is one question."""
     tests = yaml.safe_load(TESTS_PATH.read_text(encoding="utf-8"))
-    questions = []
-    for test in tests:
-        variables = test["vars"]
-        questions.append({
-            "question": variables["question"],
-            "history": json.loads(variables.get("history", "[]"))[-config.MAX_HISTORY_MESSAGES:],
-        })
-    return questions
+    return [{"question": test["vars"]["question"], "history": []} for test in tests]
 
 
 def load_recording() -> dict:

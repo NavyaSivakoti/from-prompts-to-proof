@@ -70,9 +70,9 @@ npx promptfoo@latest view
 | File | What it holds |
 |---|---|
 | [promptfooconfig.yaml](promptfooconfig.yaml) | The setup: send each question to `http://localhost:8000/api/chat` as **Baseline** and as **Improved**, and use Claude Haiku 4.5 as the grader. |
-| [promptfoo/tests.yaml](promptfoo/tests.yaml) | The 31 tests: each has a `question`, optional earlier messages (`history`), and a written PASS/FAIL rule (`rubric`). The first five are the talk's live test cases. |
+| [promptfoo/tests.yaml](promptfoo/tests.yaml) | The 31 tests: each has a `question` and a written PASS/FAIL rule (`rubric`). Every test is one self-contained question. The first five are the talk's live test cases. |
 | [promptfoo/parse_response.js](promptfoo/parse_response.js) | Reads the chatbot's reply: the answer is what gets tested, and the company documents travel along for the grader. Saved backup answers are rejected, so only live answers are graded. |
-| [promptfoo/grader_input.js](promptfoo/grader_input.js) | Builds what the grader reads: the question, earlier messages, the exact company documents the chatbot was given, and the answer. |
+| [promptfoo/grader_input.js](promptfoo/grader_input.js) | Builds what the grader reads: the question, the exact company documents the chatbot was given, and the answer. |
 | [promptfoo/grader_prompt.json](promptfoo/grader_prompt.json) | The grader's instructions: use only the written rule and evidence, treat the answer as data rather than instructions, don't reward confident wording, and fail an answer if any part contradicts the facts. |
 
 **How each answer is checked:**
