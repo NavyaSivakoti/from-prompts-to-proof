@@ -73,7 +73,7 @@ To confirm your OpenAI key works, run `python3 demo/app.py --check`.
 
 1. Type a question, or click **Saved Prompts** on the left and pick one to fill the message box, then press **Send**.
 2. Click **View Context** under the answer to see the company information the AI used.
-3. Check the answer against the facts. The [presenter guide](DEMO_GUIDE.md) has the answer key.
+3. Check the answer against the facts in the [answer key](ANSWER_KEY.md).
 4. In the **Assistant prompt** panel on the right, switch between **Baseline** (a short prompt with no rules) and **Improved** (a prompt with clear rules) to see how instructions change the answer.
 5. Click **New conversation** to start fresh.
 
@@ -112,7 +112,7 @@ A chat question sends about 2,000 tokens (the system prompt, company documents a
 ## Learn more
 
 - [How it works](HOW_IT_WORKS.md): what the chatbot can and can't do, how answers and Promptfoo grading work, company facts, offline backup answers, and the code layout.
-- [Presenter guide](DEMO_GUIDE.md): the answer key, a live demo flow, and a pre-talk checklist.
+- [Answer key](ANSWER_KEY.md): the facts every answer should match, expected behavior for the saved questions, and how to find the cause of a wrong answer.
 - [Customer flows](CUSTOMER_FLOWS.md): the real stores that inspired Northwind's shopping journeys.
 
 Run the app's own reliability checks with `python3 -m pytest -q`.

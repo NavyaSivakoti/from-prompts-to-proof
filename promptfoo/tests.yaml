@@ -1,7 +1,7 @@
 # The 31 tests. Each test sends one customer question to the chatbot.
 # Every answer is graded by Claude Haiku 4.5 against the test's written rule (the rubric).
 # Tests 1 and 5 also have simple text checks that need no AI.
-# The first five are the talk's live test cases.
+# The first five are the main demo questions.
 
 - description: "01. Supported question"
   vars:

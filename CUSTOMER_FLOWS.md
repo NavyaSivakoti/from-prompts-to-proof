@@ -59,7 +59,7 @@ Northwind requirements.
 | Understand a refund | When does an approved refund arrive? | Original payment method; may take 5–7 business days after approval. |
 | Care and contact | Can I machine wash the backpack? Can I call support? | Do not machine wash the backpack; damp-cloth care. Fictional email support, no phone hotline. |
 
-The [presenter guide](DEMO_GUIDE.md) contains the answer key. The eight documents
+The [answer key](ANSWER_KEY.md) lists the expected answers. The eight documents
 in `demo/knowledge/` provide the factual requirements, and the evaluation cases
 check selected combinations of those facts.
 

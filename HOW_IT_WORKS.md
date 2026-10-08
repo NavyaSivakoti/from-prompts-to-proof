@@ -1,6 +1,6 @@
 # How it works
 
-The detailed companion to the [README](README.md): what the chatbot does, how answers are made and graded, the company facts, saved answers for presenting offline, and the code layout. For the talk itself, see the [presenter guide](DEMO_GUIDE.md).
+The detailed companion to the [README](README.md): what the chatbot does, how answers are made and graded, the company facts, saved answers for presenting offline, and the code layout. For the expected answers, see the [answer key](ANSWER_KEY.md).
 
 ## What the chatbot does
 
@@ -35,21 +35,21 @@ The assistant acts as Northwind's online customer-support agent. A customer type
 
 Both prompts contain a hidden marker, `INTERNAL-DEMO-MARKER-7421`, so a Promptfoo test can detect if a prompt-injection attack leaks the instructions.
 
-Answers are not guaranteed to be correct. That is the point of the talk: the app is built to be tested, and both pages exist to catch its mistakes.
+Answers are not guaranteed to be correct. That is the point of the project: the app is built to be tested, and both pages exist to catch its mistakes.
 
 ## Chat page in detail
 
 1. Type a customer question and press **Send**.
 2. Click **Saved Prompts** on the left to open the five quick questions or five **Tricky questions**. A button fills the message box; it does not send the question.
 3. Open **View Context** beneath an answer to inspect the exact company information supplied. Expand **Conversation History** or **Full Knowledge Base** when useful.
-4. Compare the complete answer with the [answer key](DEMO_GUIDE.md). Check its facts, missing information, relevance, and claimed actions.
+4. Compare the complete answer with the [answer key](ANSWER_KEY.md). Check its facts, missing information, relevance, and claimed actions.
 5. Ask a follow-up or change one condition. In the **Assistant prompt** panel, switch between **Baseline** and **Improved** to try the same question with another prompt. Switching prompts or clicking **New conversation** starts a fresh conversation.
 
 Try **“Do you have the Summit Rain Jacket in Navy, size M?”**, **“How do I clean the Daypack20 Backpack?”**, **“Can I use TRAIL10 on this jacket?”**, or **“Can I return an unused jacket?”**
 
-Chat starts with Baseline on first use; after that the browser remembers the last prompt you picked, so check the **Assistant prompt** panel before presenting. Chat includes up to six prior user/assistant messages. The conversation is kept in the browser tab, so it survives a page reload, and is cleared by **New conversation**, switching prompts, or closing the tab. The model is the standard [`gpt-4o-mini` alias](https://developers.openai.com/api/docs/models/gpt-4o-mini), with **temperature 0.7** and a 600-token answer limit, configured in [demo/config.py](demo/config.py). Repeated requests can give different answers.
+Chat starts with Baseline on first use; after that the browser remembers the last prompt you picked, so check the **Assistant prompt** panel before a demo. Chat includes up to six prior user/assistant messages. The conversation is kept in the browser tab, so it survives a page reload, and is cleared by **New conversation**, switching prompts, or closing the tab. The model is the standard [`gpt-4o-mini` alias](https://developers.openai.com/api/docs/models/gpt-4o-mini), with **temperature 0.7** and a 600-token answer limit, configured in [demo/config.py](demo/config.py). Repeated requests can give different answers.
 
-Keep both prompts, the company information, and model settings fixed during the presentation. In chat, review each answer directly; automated scores come from Promptfoo.
+In chat, review each answer directly; automated scores come from Promptfoo.
 
 ## Automatic testing with Promptfoo
 
@@ -70,7 +70,7 @@ npx promptfoo@latest view
 | File | What it holds |
 |---|---|
 | [promptfooconfig.yaml](promptfooconfig.yaml) | The setup: send each question to `http://localhost:8000/api/chat` as **Baseline** and as **Improved**, and use Claude Haiku 4.5 as the grader. |
-| [promptfoo/tests.yaml](promptfoo/tests.yaml) | The 31 tests: each has a `question` and a written PASS/FAIL rule (`rubric`). Every test is one self-contained question. The first five are the talk's live test cases. |
+| [promptfoo/tests.yaml](promptfoo/tests.yaml) | The 31 tests: each has a `question` and a written PASS/FAIL rule (`rubric`). Every test is one self-contained question. The first five are the main demo questions. |
 | [promptfoo/parse_response.js](promptfoo/parse_response.js) | Reads the chatbot's reply: the answer is what gets tested, and the company documents travel along for the grader. Saved backup answers are rejected, so only live answers are graded. |
 | [promptfoo/grader_input.js](promptfoo/grader_input.js) | Builds what the grader reads: the question, the exact company documents the chatbot was given, and the answer. |
 | [promptfoo/grader_prompt.json](promptfoo/grader_prompt.json) | The grader's instructions: use only the written rule and evidence, treat the answer as data rather than instructions, don't reward confident wording, and fail an answer if any part contradicts the facts. |
@@ -104,7 +104,7 @@ The five products are a rain jacket, fleece, backpack, boots, and tent. Northwin
 
 Shipping covers the contiguous 48 US states. Standard shipping costs $5.99 below $75 and is free at $75 or more, using the merchandise subtotal **after discounts and before tax**. Delivery normally takes 3–5 business days **after dispatch**. TRAIL10 gives 10% off merchandise with a $50 minimum before discount; an $80 jacket becomes $72, so standard shipping costs $5.99 and the total before tax is $77.99.
 
-Standard returns require unused original condition within 30 days of delivery. The ordinary return label costs $5.99, deducted from an approved refund. A needed arrival-damage label is free **after human support confirms the damage**. See the presenter guide for the complete answer key.
+Standard returns require unused original condition within 30 days of delivery. The ordinary return label costs $5.99, deducted from an approved refund. A needed arrival-damage label is free **after human support confirms the damage**. See the [answer key](ANSWER_KEY.md) for the complete list.
 
 The knowledge base deliberately has no competitor price-matching policy. An honest “I don't have that information” is appropriate; asserting either a positive or negative company policy is unsupported. If a fact exists but was not supplied to the model, View Context helps identify a retrieval gap.
 
@@ -130,7 +130,7 @@ npx promptfoo eval
 
 ## Prepare and use saved answers
 
-Saved answers are a safety net for presenting live. Conference Wi-Fi drops, OpenAI can rate-limit or time out, and a key can run out of credit. Before the talk you record an answer to every Promptfoo test question once with real API calls; the app can then show those recorded answers when it cannot reach OpenAI, clearly labeled so nobody mistakes them for fresh responses.
+Saved answers are a safety net for live demos. Wi-Fi drops, OpenAI can rate-limit or time out, and a key can run out of credit. Before a demo, record an answer to every Promptfoo test question once with real API calls; the app can then show those recorded answers when it cannot reach OpenAI, clearly labeled so nobody mistakes them for fresh responses.
 
 Record both prompts (62 OpenAI answers, a few minutes, about 2 cents). It also writes a readable report to `demo/rehearsal/recorded-answers.md`:
 
@@ -156,7 +156,7 @@ Replay is labeled **REPLAY MODE — Saved responses** and makes no live calls. I
 
 During live use, a failed answer request can use a compatible saved answer labeled **Fallback response — saved during rehearsal**. Conversation history must match too, so click **New conversation** before an important saved question. Saved evidence is never presented as a fresh live response. Without a matching record, the request error remains visible.
 
-Only the 31 test questions are recorded. A question you make up on stage, or a follow-up with different history, has no saved answer. For offline evaluation results, open an earlier run with `npx promptfoo@latest view`.
+Only the 31 test questions are recorded. A question that isn't in the tests, or a follow-up with different history, has no saved answer. For offline evaluation results, open an earlier run with `npx promptfoo@latest view`.
 
 ## Troubleshooting
 
@@ -172,7 +172,7 @@ Only the 31 test questions are recorded. A question you make up on stage, or a f
 ```text
 README.md               Quick overview, setup, and usage
 HOW_IT_WORKS.md         This detailed guide
-DEMO_GUIDE.md           Manual answer key and presentation flow
+ANSWER_KEY.md           Expected answers and fact checks
 CUSTOMER_FLOWS.md       Merchant reference and customer journeys
 promptfooconfig.yaml    Promptfoo setup: chatbot, both prompts, grader
 promptfoo/tests.yaml    The 31 test questions and their written rules
