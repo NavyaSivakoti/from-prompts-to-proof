@@ -170,23 +170,23 @@ Only the 31 test questions are recorded. A question you make up on stage, or a f
 ## Files and checks
 
 ```text
-README.md                    Quick overview, setup, and usage
-HOW_IT_WORKS.md              This detailed guide
-DEMO_GUIDE.md                 Manual answer key and presentation flow
-CUSTOMER_FLOWS.md             Merchant reference and customer journeys
-promptfooconfig.yaml         Promptfoo setup: chatbot, both prompts, grader
-promptfoo/tests.yaml         The 31 test questions and their written rules
-promptfoo/*.js, *.json       Response reader, grader input, grader instructions
-demo/app.py                  Server and CLI commands
-demo/config.py               Model settings
-demo/model.py                OpenAI answer requests
-demo/rehearsal.py            Saving and matching recorded backup answers
-demo/retrieval.py             Markdown information selection
-demo/knowledge/              Eight company documents
-demo/prompts/                Baseline and Improved
-demo/static/                 Chat page
-demo/rehearsal/              Recorded answers and reports (git-ignored)
-tests/                       Application reliability checks
+README.md               Quick overview, setup, and usage
+HOW_IT_WORKS.md         This detailed guide
+DEMO_GUIDE.md           Manual answer key and presentation flow
+CUSTOMER_FLOWS.md       Merchant reference and customer journeys
+promptfooconfig.yaml    Promptfoo setup: chatbot, both prompts, grader
+promptfoo/tests.yaml    The 31 test questions and their written rules
+promptfoo/*.js, *.json  Response reader, grader input, grader instructions
+demo/app.py             Server and CLI commands
+demo/config.py          Model settings
+demo/model.py           OpenAI answer requests
+demo/rehearsal.py       Saving and matching recorded backup answers
+demo/retrieval.py       Markdown information selection
+demo/knowledge/         Eight company documents
+demo/prompts/           Baseline and Improved
+demo/static/            Chat page
+demo/rehearsal/         Recorded answers and reports (git-ignored)
+tests/                  Application reliability checks
 ```
 
 Run local checks with `python3 -m pytest -q`. Repeat useful customer questions and their expected behavior after a change; inspect complete answers against the same requirements. One successful response does not establish reliability.
