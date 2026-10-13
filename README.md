@@ -109,6 +109,10 @@ Very small. Estimates are based on this app's real request sizes:
 
 A chat question sends about 2,000 tokens (the system prompt, company documents and question) and gets back about 100. Prices used: [`gpt-4o-mini`](https://developers.openai.com/api/docs/pricing) $0.15 / $0.60 per million input / output tokens, and Claude Haiku 4.5 $1 / $5. Check the providers' pricing pages for current rates.
 
+## Meetup slides
+
+[View the slides (PDF)](From_Prompts_to_Proof_Slides.pdf)
+
 ## Learn more
 
 - [How it works](HOW_IT_WORKS.md): what the chatbot can and can't do, how answers and Promptfoo grading work, company facts, offline backup answers, and the code layout.
